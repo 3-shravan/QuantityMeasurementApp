@@ -26,6 +26,12 @@ public final class Length {
     }
   }
 
+  /**
+   * Creates a new immutable length value.
+   *
+   * @param value numeric length value (must be finite)
+   * @param unit  unit of the value (must not be null)
+   */
   public Length(double value, LengthUnit unit) {
     if (!Double.isFinite(value)) {
       throw new IllegalArgumentException("Length value must be numeric");
@@ -34,8 +40,49 @@ public final class Length {
     this.value = value;
   }
 
+  public double getValue() {
+    return value;
+  }
+
+  public LengthUnit getUnit() {
+    return unit;
+  }
+
   private double convertToBaseUnit() {
     return value * unit.getConversionFactor();
+  }
+
+  private static void validateConversionInput(double inputValue, LengthUnit sourceUnit, LengthUnit targetUnit) {
+    if (!Double.isFinite(inputValue)) {
+      throw new IllegalArgumentException("Length value must be numeric");
+    }
+    Objects.requireNonNull(sourceUnit, "Source unit cannot be null");
+    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
+  }
+
+  /**
+   * Converts this instance to the requested target unit.
+   *
+   * @param targetUnit target unit (must not be null)
+   * @return a new {@code Length} in the target unit
+   */
+  public Length convertTo(LengthUnit targetUnit) {
+    double convertedValue = convert(this.value, this.unit, targetUnit);
+    return new Length(convertedValue, targetUnit);
+  }
+
+  /**
+   * Converts a numeric value from one unit to another.
+   *
+   * @param inputValue value to convert
+   * @param sourceUnit source unit
+   * @param targetUnit target unit
+   * @return converted numeric value in target unit
+   */
+  public static double convert(double inputValue, LengthUnit sourceUnit, LengthUnit targetUnit) {
+    validateConversionInput(inputValue, sourceUnit, targetUnit);
+    double baseInches = inputValue * sourceUnit.getConversionFactor();
+    return baseInches / targetUnit.getConversionFactor();
   }
 
   public boolean compare(Length thatLength) {
@@ -56,5 +103,10 @@ public final class Length {
   @Override
   public int hashCode() {
     return Double.valueOf(Math.round(convertToBaseUnit() / EPSILON) * EPSILON).hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%.2f %s", value, unit);
   }
 }
