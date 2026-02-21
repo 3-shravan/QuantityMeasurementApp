@@ -1,82 +1,60 @@
 package com.shravan;
 
-import java.util.Locale;
 import java.util.Objects;
 
 public final class Length {
 
+  private static final double EPSILON = 1e-4;
+
   private final double value;
   private final LengthUnit unit;
 
+  public enum LengthUnit {
+    FEET(12.0),
+    INCHES(1.0),
+    YARDS(36.0),
+    CENTIMETERS(0.393701);
+
+    private final double conversionFactor;
+
+    LengthUnit(double conversionFactor) {
+      this.conversionFactor = conversionFactor;
+    }
+
+    public double getConversionFactor() {
+      return conversionFactor;
+    }
+  }
+
   public Length(double value, LengthUnit unit) {
     if (!Double.isFinite(value)) {
-      throw new IllegalArgumentException("Length value must be a finite number");
+      throw new IllegalArgumentException("Length value must be numeric");
     }
     this.unit = Objects.requireNonNull(unit, "Length unit cannot be null");
     this.value = value;
   }
 
-  public double getValue() {
-    return value;
+  private double convertToBaseUnit() {
+    return value * unit.getConversionFactor();
   }
 
-  public LengthUnit getUnit() {
-    return unit;
-  }
-
-  private double toBaseUnitFeet() {
-    return value * unit.getConversionFactorToFeet();
+  public boolean compare(Length thatLength) {
+    return Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < EPSILON;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-
-    if (obj == null || getClass() != obj.getClass()) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    Length other = (Length) obj;
-    return Double.compare(this.toBaseUnitFeet(), other.toBaseUnitFeet()) == 0;
+    return compare((Length) o);
   }
 
   @Override
   public int hashCode() {
-    return Double.hashCode(toBaseUnitFeet());
-  }
-
-  public enum LengthUnit {
-    FEET(1.0),
-    INCHES(1.0 / 12.0);
-
-    private final double conversionFactorToFeet;
-
-    LengthUnit(double conversionFactorToFeet) {
-      this.conversionFactorToFeet = conversionFactorToFeet;
-    }
-
-    public double getConversionFactorToFeet() {
-      return conversionFactorToFeet;
-    }
-
-    public static LengthUnit from(String unitText) {
-      if (unitText == null) {
-        throw new IllegalArgumentException("Unit text cannot be null");
-      }
-
-      String normalized = unitText.trim().toLowerCase(Locale.ROOT);
-      switch (normalized) {
-        case "foot":
-        case "feet":
-          return FEET;
-        case "inch":
-        case "inches":
-          return INCHES;
-        default:
-          throw new IllegalArgumentException("Unsupported unit: " + unitText);
-      }
-    }
+    return Double.valueOf(Math.round(convertToBaseUnit() / EPSILON) * EPSILON).hashCode();
   }
 }
