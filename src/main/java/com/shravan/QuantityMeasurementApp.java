@@ -3,6 +3,9 @@ package com.shravan;
 public class QuantityMeasurementApp {
 
 	public static boolean demonstrateLengthEquality(Length length1, Length length2) {
+		if (length1 == null || length2 == null) {
+			throw new IllegalArgumentException("Lengths cannot be null");
+		}
 		return length1.equals(length2);
 	}
 
@@ -24,6 +27,20 @@ public class QuantityMeasurementApp {
 			throw new IllegalArgumentException("Source length cannot be null");
 		}
 		return sourceLength.convertTo(toUnit);
+	}
+
+	public static Length demonstrateLengthAddition(Length length1, Length length2) {
+		if (length1 == null || length2 == null) {
+			throw new IllegalArgumentException("Lengths to add cannot be null");
+		}
+		return length1.add(length2);
+	}
+
+	public static Length demonstrateLengthAddition(double value1, Length.LengthUnit unit1, double value2,
+			Length.LengthUnit unit2) {
+		Length length1 = new Length(value1, unit1);
+		Length length2 = new Length(value2, unit2);
+		return demonstrateLengthAddition(length1, length2);
 	}
 
 	private static void printDemo(String title, double value1, Length.LengthUnit unit1, double value2,
@@ -83,6 +100,25 @@ public class QuantityMeasurementApp {
 				Length.LengthUnit.FEET);
 	}
 
+	private static void printAdditionDemo(double value1, Length.LengthUnit unit1, double value2,
+			Length.LengthUnit unit2) {
+		Length result = demonstrateLengthAddition(value1, unit1, value2, unit2);
+		System.out.println("Input: add(Quantity(" + value1 + ", " + unit1 + "), Quantity(" + value2 + ", " + unit2
+				+ "))");
+		System.out.println("Output: Quantity(" + result.getValue() + ", " + result.getUnit() + ")");
+	}
+
+	public static void demonstrateAdditionUseCases() {
+		printAdditionDemo(1.0, Length.LengthUnit.FEET, 2.0, Length.LengthUnit.FEET);
+		printAdditionDemo(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES);
+		printAdditionDemo(12.0, Length.LengthUnit.INCHES, 1.0, Length.LengthUnit.FEET);
+		printAdditionDemo(1.0, Length.LengthUnit.YARDS, 3.0, Length.LengthUnit.FEET);
+		printAdditionDemo(36.0, Length.LengthUnit.INCHES, 1.0, Length.LengthUnit.YARDS);
+		printAdditionDemo(2.54, Length.LengthUnit.CENTIMETERS, 1.0, Length.LengthUnit.INCHES);
+		printAdditionDemo(5.0, Length.LengthUnit.FEET, 0.0, Length.LengthUnit.INCHES);
+		printAdditionDemo(5.0, Length.LengthUnit.FEET, -2.0, Length.LengthUnit.FEET);
+	}
+
 	public static void main(String[] args) {
 		demonstrateFeetEquality();
 		demonstrateInchesEquality();
@@ -95,5 +131,8 @@ public class QuantityMeasurementApp {
 		demonstrateConversionFeetToInches();
 		demonstrateConversionYardsToInches();
 		demonstrateConversionCentimetersToFeet();
+
+		// uc-6
+		demonstrateAdditionUseCases();
 	}
 }

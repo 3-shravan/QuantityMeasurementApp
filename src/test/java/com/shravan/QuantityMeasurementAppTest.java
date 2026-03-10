@@ -10,6 +10,8 @@ import com.shravan.Length.LengthUnit;
 
 public class QuantityMeasurementAppTest {
 
+    private static final double EPS = 1e-3;
+
     @Test
     public void testFeetEquality() {
         Length feet1 = new Length(1.0, LengthUnit.FEET);
@@ -243,6 +245,118 @@ public class QuantityMeasurementAppTest {
         Length lengthInInches = QuantityMeasurementApp.demonstrateLengthConversion(lengthInYards, LengthUnit.INCHES);
         Length expectedLength = new Length(72.0, LengthUnit.INCHES);
         assertTrue(QuantityMeasurementApp.demonstrateLengthEquality(lengthInInches, expectedLength));
+    }
+
+    @Test
+    public void testAddition_SameUnit_FeetPlusFeet() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(2.0, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(3.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.FEET, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_SameUnit_InchPlusInch() {
+        Length a = new Length(6.0, LengthUnit.INCHES);
+        Length b = new Length(6.0, LengthUnit.INCHES);
+
+        Length sum = a.add(b);
+        assertEquals(12.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.INCHES, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_CrossUnit_FeetPlusInches() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+
+        Length sum = a.add(b);
+        assertEquals(2.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.FEET, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_CrossUnit_InchPlusFeet() {
+        Length a = new Length(12.0, LengthUnit.INCHES);
+        Length b = new Length(1.0, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(24.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.INCHES, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_CrossUnit_YardPlusFeet() {
+        Length a = new Length(1.0, LengthUnit.YARDS);
+        Length b = new Length(3.0, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(2.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_CrossUnit_CentimeterPlusInch() {
+        Length a = new Length(2.54, LengthUnit.CENTIMETERS);
+        Length b = new Length(1.0, LengthUnit.INCHES);
+
+        Length sum = a.add(b);
+        assertEquals(5.08, sum.getValue(), 1e-2);
+        assertEquals(LengthUnit.CENTIMETERS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_Commutativity() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+
+        Length sum1 = a.add(b);
+        Length sum2 = b.add(a).convertTo(LengthUnit.FEET);
+        assertEquals(sum1.getValue(), sum2.getValue(), EPS);
+    }
+
+    @Test
+    public void testAddition_WithZero() {
+        Length a = new Length(5.0, LengthUnit.FEET);
+        Length zero = new Length(0.0, LengthUnit.INCHES);
+
+        Length sum = a.add(zero);
+        assertEquals(5.0, sum.getValue(), EPS);
+    }
+
+    @Test
+    public void testAddition_NegativeValues() {
+        Length a = new Length(5.0, LengthUnit.FEET);
+        Length b = new Length(-2.0, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(3.0, sum.getValue(), EPS);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddition_NullSecondOperand() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        a.add(null);
+    }
+
+    @Test
+    public void testAddition_LargeValues() {
+        Length a = new Length(1e6, LengthUnit.FEET);
+        Length b = new Length(1e6, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(2e6, sum.getValue(), 1e2);
+    }
+
+    @Test
+    public void testAddition_SmallValues() {
+        Length a = new Length(0.001, LengthUnit.FEET);
+        Length b = new Length(0.002, LengthUnit.FEET);
+
+        Length sum = a.add(b);
+        assertEquals(0.003, sum.getValue(), 1e-6);
     }
 
 }

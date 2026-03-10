@@ -26,12 +26,6 @@ public final class Length {
     }
   }
 
-  /**
-   * Creates a new immutable length value.
-   *
-   * @param value numeric length value (must be finite)
-   * @param unit  unit of the value (must not be null)
-   */
   public Length(double value, LengthUnit unit) {
     if (!Double.isFinite(value)) {
       throw new IllegalArgumentException("Length value must be numeric");
@@ -40,16 +34,47 @@ public final class Length {
     this.value = value;
   }
 
-  public double getValue() {
-    return value;
-  }
-
-  public LengthUnit getUnit() {
-    return unit;
-  }
-
   private double convertToBaseUnit() {
     return value * unit.getConversionFactor();
+  }
+
+  public boolean compare(Length thatLength) {
+    return Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < EPSILON;
+  }
+
+  public Length convertTo(LengthUnit targetUnit) {
+    double convertedValue = convert(this.value, this.unit, targetUnit);
+    return new Length(convertedValue, targetUnit);
+  }
+
+  public Length add(Length thatLength) {
+    Objects.requireNonNull(thatLength, "Operand length cannot be null");
+    if (!Double.isFinite(thatLength.value)) {
+      throw new IllegalArgumentException("Length value must be numeric");
+    }
+
+    // Sum in base unit (inches)
+    double sumInBase = this.convertToBaseUnit() + thatLength.convertToBaseUnit();
+
+    // Convert sum back to this instance's unit
+    double sumInThisUnit = sumInBase / this.unit.getConversionFactor();
+
+    return new Length(sumInThisUnit, this.unit);
+  }
+
+  /**
+   * Convenience static add method: adds two raw values with units and returns result in targetUnit.
+   */
+  public static Length add(double value1, LengthUnit unit1, double value2, LengthUnit unit2, LengthUnit targetUnit) {
+    validateConversionInput(value1, unit1, targetUnit);
+    validateConversionInput(value2, unit2, targetUnit);
+
+    double base1 = value1 * unit1.getConversionFactor();
+    double base2 = value2 * unit2.getConversionFactor();
+    double sumBase = base1 + base2;
+
+    double sumInTarget = sumBase / targetUnit.getConversionFactor();
+    return new Length(sumInTarget, targetUnit);
   }
 
   private static void validateConversionInput(double inputValue, LengthUnit sourceUnit, LengthUnit targetUnit) {
@@ -60,33 +85,18 @@ public final class Length {
     Objects.requireNonNull(targetUnit, "Target unit cannot be null");
   }
 
-  /**
-   * Converts this instance to the requested target unit.
-   *
-   * @param targetUnit target unit (must not be null)
-   * @return a new {@code Length} in the target unit
-   */
-  public Length convertTo(LengthUnit targetUnit) {
-    double convertedValue = convert(this.value, this.unit, targetUnit);
-    return new Length(convertedValue, targetUnit);
-  }
-
-  /**
-   * Converts a numeric value from one unit to another.
-   *
-   * @param inputValue value to convert
-   * @param sourceUnit source unit
-   * @param targetUnit target unit
-   * @return converted numeric value in target unit
-   */
   public static double convert(double inputValue, LengthUnit sourceUnit, LengthUnit targetUnit) {
     validateConversionInput(inputValue, sourceUnit, targetUnit);
     double baseInches = inputValue * sourceUnit.getConversionFactor();
     return baseInches / targetUnit.getConversionFactor();
   }
 
-  public boolean compare(Length thatLength) {
-    return Math.abs(this.convertToBaseUnit() - thatLength.convertToBaseUnit()) < EPSILON;
+  public double getValue() {
+    return value;
+  }
+
+  public LengthUnit getUnit() {
+    return unit;
   }
 
   @Override
