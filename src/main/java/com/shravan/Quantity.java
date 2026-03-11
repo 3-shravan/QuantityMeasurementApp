@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public final class Quantity<U extends IMeasurable> {
 
-  private static final int OUTPUT_SCALE = 2;
+  private static final int OUTPUT_SCALE = 6;
   private static final int BASE_COMPARISON_SCALE = 4;
 
   private final double value;

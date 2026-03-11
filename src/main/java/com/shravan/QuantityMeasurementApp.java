@@ -237,49 +237,79 @@ public final class QuantityMeasurementApp {
 	}
 
 	public static void main(String[] args) {
-		Quantity<LengthUnit> lengthInFeet = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<LengthUnit> lengthInInches = new Quantity<>(12.0, LengthUnit.INCHES);
-		Quantity<WeightUnit> weightInKilogram = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> weightInGram = new Quantity<>(1000.0, WeightUnit.GRAM);
+		Quantity<VolumeUnit> litre = new Quantity<>(1.0, VolumeUnit.LITRE);
+		Quantity<VolumeUnit> litreTwo = new Quantity<>(2.0, VolumeUnit.LITRE);
+		Quantity<VolumeUnit> halfLitre = new Quantity<>(0.5, VolumeUnit.LITRE);
+		Quantity<VolumeUnit> litreAsMillilitre = new Quantity<>(1000.0, VolumeUnit.MILLILITRE);
+		Quantity<VolumeUnit> halfLitreAsMillilitre = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
+		Quantity<VolumeUnit> gallon = new Quantity<>(1.0, VolumeUnit.GALLON);
+		Quantity<VolumeUnit> twoGallons = new Quantity<>(2.0, VolumeUnit.GALLON);
+		Quantity<VolumeUnit> fourGallons = new Quantity<>(4.0, VolumeUnit.GALLON);
+		Quantity<VolumeUnit> litreAsGallon = new Quantity<>(0.264172, VolumeUnit.GALLON);
+		Quantity<VolumeUnit> gallonAsLitre = new Quantity<>(3.78541, VolumeUnit.LITRE);
 
 		System.out.println("Example Output of running the App");
 		System.out.println();
-		System.out.println("Length Operations (UC1–UC8 functionality preserved):");
+		System.out.println("Equality Comparisons:");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(12.0, LengthUnit.INCHES))",
-				String.valueOf(demonstrateEquality(lengthInFeet, lengthInInches)));
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES)",
-				lengthInFeet.convertTo(LengthUnit.INCHES).toString());
-		printExampleLine(
-				"new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET)",
-				lengthInFeet.add(lengthInInches, LengthUnit.FEET).toString());
+		printExampleLine("new Quantity<>(1.0, LITRE).equals(new Quantity<>(1.0, LITRE))",
+				String.valueOf(demonstrateEquality(litre, litre)));
+		printExampleLine("new Quantity<>(1.0, LITRE).equals(new Quantity<>(1000.0, MILLILITRE))",
+				String.valueOf(demonstrateEquality(litre, litreAsMillilitre)));
+		printExampleLine("new Quantity<>(1.0, GALLON).equals(new Quantity<>(1.0, GALLON))",
+				String.valueOf(demonstrateEquality(gallon, gallon)));
+		printExampleLine("new Quantity<>(1.0, LITRE).equals(new Quantity<>(~0.264172, GALLON))",
+				String.valueOf(demonstrateEquality(litre, litreAsGallon)) + " (within epsilon)");
+		printExampleLine("new Quantity<>(500.0, MILLILITRE).equals(new Quantity<>(0.5, LITRE))",
+				String.valueOf(demonstrateEquality(halfLitreAsMillilitre, halfLitre)));
+		printExampleLine("new Quantity<>(3.78541, LITRE).equals(new Quantity<>(1.0, GALLON))",
+				String.valueOf(demonstrateEquality(gallonAsLitre, gallon)) + " (within epsilon)");
 
 		System.out.println();
-		System.out.println("Weight Operations (UC9 functionality preserved):");
+		System.out.println("Unit Conversions:");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).equals(new Quantity<>(1000.0, WeightUnit.GRAM))",
-				String.valueOf(demonstrateEquality(weightInKilogram, weightInGram)));
-		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM)",
-				weightInKilogram.convertTo(WeightUnit.GRAM).toString());
-		printExampleLine(
-				"new Quantity<>(1.0, WeightUnit.KILOGRAM).add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM)",
-				weightInKilogram.add(weightInGram, WeightUnit.KILOGRAM).toString());
+		printExampleLine("new Quantity<>(1.0, LITRE).convertTo(MILLILITRE)",
+				litre.convertTo(VolumeUnit.MILLILITRE).toString());
+		printExampleLine("new Quantity<>(2.0, GALLON).convertTo(LITRE)",
+				formatApproxQuantity(twoGallons.convertTo(VolumeUnit.LITRE)));
+		printExampleLine("new Quantity<>(500.0, MILLILITRE).convertTo(GALLON)",
+				formatApproxQuantity(halfLitreAsMillilitre.convertTo(VolumeUnit.GALLON)));
+		printExampleLine("new Quantity<>(0.0, LITRE).convertTo(MILLILITRE)",
+				new Quantity<>(0.0, VolumeUnit.LITRE).convertTo(VolumeUnit.MILLILITRE).toString());
+		printExampleLine("new Quantity<>(1.0, LITRE).convertTo(LITRE)",
+				litre.convertTo(VolumeUnit.LITRE).toString());
 
 		System.out.println();
-		System.out.println("Cross-Category Prevention:");
+		System.out.println("Addition Operations (Implicit Target Unit):");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(1.0, WeightUnit.KILOGRAM))",
-				String.valueOf(lengthInFeet.equals(weightInKilogram)));
-		printExampleLine("demonstrateEquality(Quantity<LengthUnit>, Quantity<WeightUnit>)",
-				"Compiler error (type mismatch)");
+		printExampleLine("new Quantity<>(1.0, LITRE).add(new Quantity<>(2.0, LITRE))",
+				litre.add(litreTwo).toString());
+		printExampleLine("new Quantity<>(1.0, LITRE).add(new Quantity<>(1000.0, MILLILITRE))",
+				litre.add(litreAsMillilitre).toString());
+		printExampleLine("new Quantity<>(500.0, MILLILITRE).add(new Quantity<>(0.5, LITRE))",
+				halfLitreAsMillilitre.add(halfLitre).toString());
+		printExampleLine("new Quantity<>(2.0, GALLON).add(new Quantity<>(3.78541, LITRE))",
+				twoGallons.add(gallonAsLitre).toString());
 
 		System.out.println();
-		System.out.println("Generic Demonstration Methods:");
+		System.out.println("Addition Operations (Explicit Target Unit):");
 		System.out.println();
-		printExampleLine("demonstrateEquality(q1, q2) where both are Quantity<LengthUnit>",
-				demonstrateGenericHandling(lengthInFeet, lengthInInches));
-		printExampleLine("demonstrateEquality(w1, w2) where both are Quantity<WeightUnit>",
-				demonstrateGenericHandling(weightInKilogram, weightInGram));
+		printExampleLine("new Quantity<>(1.0, LITRE).add(new Quantity<>(1000.0, MILLILITRE), MILLILITRE)",
+				litre.add(litreAsMillilitre, VolumeUnit.MILLILITRE).toString());
+		printExampleLine("new Quantity<>(1.0, GALLON).add(new Quantity<>(3.78541, LITRE), GALLON)",
+				formatApproxQuantity(gallon.add(gallonAsLitre, VolumeUnit.GALLON)));
+		printExampleLine("new Quantity<>(500.0, MILLILITRE).add(new Quantity<>(1.0, LITRE), GALLON)",
+				formatApproxQuantity(halfLitreAsMillilitre.add(litre, VolumeUnit.GALLON)));
+		printExampleLine("new Quantity<>(2.0, LITRE).add(new Quantity<>(4.0, GALLON), LITRE)",
+				formatApproxQuantity(new Quantity<>(2.0, VolumeUnit.LITRE).add(fourGallons, VolumeUnit.LITRE)));
+
+		System.out.println();
+		System.out.println("Category Incompatibility:");
+		System.out.println();
+		printExampleLine("new Quantity<>(1.0, LITRE).equals(new Quantity<>(1.0, FOOT))",
+				String.valueOf(litre.equals(new Quantity<>(1.0, LengthUnit.FEET))) + " (different categories)");
+		printExampleLine("new Quantity<>(1.0, LITRE).equals(new Quantity<>(1.0, KILOGRAM))",
+				String.valueOf(litre.equals(new Quantity<>(1.0, WeightUnit.KILOGRAM))) + " (different categories)");
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
@@ -330,6 +360,10 @@ public final class QuantityMeasurementApp {
 
 	private static String formatQuantity(QuantityLength length) {
 		return new Quantity<>(length.getValue(), length.getUnit()).toString();
+	}
+
+	private static String formatApproxQuantity(Quantity<? extends IMeasurable> quantity) {
+		return quantity.toString().replace("Quantity(", "Quantity(~");
 	}
 
 	private static void printExampleLine(String input, String output) {
