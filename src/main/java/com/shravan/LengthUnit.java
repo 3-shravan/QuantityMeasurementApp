@@ -1,6 +1,6 @@
 package com.shravan;
 
-public enum LengthUnit {
+public enum LengthUnit implements IMeasurable {
   FEET(1.0),
   INCHES(1.0 / 12.0),
   YARDS(3.0),
@@ -16,19 +16,8 @@ public enum LengthUnit {
     return conversionFactor;
   }
 
-  public double convertToBaseUnit(double value) {
-    validateValue(value);
-    return value * conversionFactor;
-  }
-
-  public double convertFromBaseUnit(double baseValue) {
-    validateValue(baseValue);
-    return baseValue / conversionFactor;
-  }
-
-  private static void validateValue(double value) {
-    if (!Double.isFinite(value)) {
-      throw new IllegalArgumentException("Length value must be numeric");
-    }
+  @Override
+  public String getUnitName() {
+    return name();
   }
 }

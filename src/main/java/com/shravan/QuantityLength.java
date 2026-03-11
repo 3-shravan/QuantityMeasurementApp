@@ -4,28 +4,23 @@ import java.util.Objects;
 
 public final class QuantityLength {
 
-  private static final double EPSILON = 1e-4;
-
-  private final double value;
-  private final LengthUnit unit;
+  private final Quantity<LengthUnit> quantity;
 
   public QuantityLength(double value, LengthUnit unit) {
-    validateValue(value);
-    this.unit = Objects.requireNonNull(unit, "Length unit cannot be null");
-    this.value = value;
+    this.quantity = new Quantity<>(value, Objects.requireNonNull(unit, "Length unit cannot be null"));
   }
 
   public boolean compare(QuantityLength thatLength) {
     Objects.requireNonNull(thatLength, "Length to compare cannot be null");
-    return Math.abs(this.toBaseUnit() - thatLength.toBaseUnit()) < EPSILON;
+    return quantity.compare(thatLength.quantity);
   }
 
   public QuantityLength convertTo(LengthUnit targetUnit) {
-    return new QuantityLength(convert(this.value, this.unit, targetUnit), targetUnit);
+    return new QuantityLength(convert(getValue(), getUnit(), targetUnit), targetUnit);
   }
 
   public QuantityLength add(QuantityLength thatLength) {
-    return addInternal(thatLength, this.unit);
+    return addInternal(thatLength, getUnit());
   }
 
   public QuantityLength add(QuantityLength thatLength, LengthUnit targetUnit) {
@@ -52,11 +47,11 @@ public final class QuantityLength {
   }
 
   public double getValue() {
-    return value;
+    return quantity.getValue();
   }
 
   public LengthUnit getUnit() {
-    return unit;
+    return quantity.getUnit();
   }
 
   @Override
@@ -72,12 +67,12 @@ public final class QuantityLength {
 
   @Override
   public int hashCode() {
-    return Double.hashCode(Math.round(toBaseUnit() / EPSILON) * EPSILON);
+    return quantity.hashCode();
   }
 
   @Override
   public String toString() {
-    return String.format("%.2f %s", value, unit);
+    return String.format("%.2f %s", getValue(), getUnit());
   }
 
   private QuantityLength addInternal(QuantityLength thatLength, LengthUnit targetUnit) {
@@ -89,19 +84,14 @@ public final class QuantityLength {
   }
 
   private double toBaseUnit() {
-    return unit.convertToBaseUnit(value);
+    return getUnit().convertToBaseUnit(getValue());
   }
 
   private static void validateConversionInput(double inputValue, LengthUnit sourceUnit,
       LengthUnit targetUnit) {
-    validateValue(inputValue);
+    IMeasurable.validateValue(inputValue);
     Objects.requireNonNull(sourceUnit, "Source unit cannot be null");
     Objects.requireNonNull(targetUnit, "Target unit cannot be null");
   }
 
-  private static void validateValue(double value) {
-    if (!Double.isFinite(value)) {
-      throw new IllegalArgumentException("Length value must be numeric");
-    }
-  }
 }

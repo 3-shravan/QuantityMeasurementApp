@@ -1,12 +1,57 @@
 package com.shravan;
 
-import java.text.DecimalFormat;
-
 public final class QuantityMeasurementApp {
 
-	private static final DecimalFormat VALUE_FORMAT = new DecimalFormat("0.0###");
-
 	private QuantityMeasurementApp() {
+	}
+
+	public static <U extends IMeasurable> boolean demonstrateEquality(Quantity<U> first, Quantity<U> second) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.equals(second);
+	}
+
+	public static <U extends IMeasurable> boolean demonstrateComparison(double value1, U unit1, double value2,
+			U unit2) {
+		return demonstrateEquality(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2));
+	}
+
+	public static <U extends IMeasurable> String demonstrateGenericHandling(Quantity<U> first, Quantity<U> second) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return "Unified handling";
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateConversion(double value, U fromUnit, U toUnit) {
+		return new Quantity<>(value, fromUnit).convertTo(toUnit);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateConversion(Quantity<U> source, U toUnit) {
+		validateGenericQuantity(source, "Source quantity cannot be null");
+		return source.convertTo(toUnit);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(Quantity<U> first, Quantity<U> second) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.add(second);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(double value1, U unit1, double value2,
+			U unit2) {
+		return demonstrateAddition(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2));
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(Quantity<U> first, Quantity<U> second,
+			U targetUnit) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.add(second, targetUnit);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateAddition(double value1, U unit1, double value2,
+			U unit2, U targetUnit) {
+		return demonstrateAddition(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2), targetUnit);
 	}
 
 	/** Compares two already-created length objects. */
@@ -192,68 +237,49 @@ public final class QuantityMeasurementApp {
 	}
 
 	public static void main(String[] args) {
+		Quantity<LengthUnit> lengthInFeet = new Quantity<>(1.0, LengthUnit.FEET);
+		Quantity<LengthUnit> lengthInInches = new Quantity<>(12.0, LengthUnit.INCHES);
+		Quantity<WeightUnit> weightInKilogram = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+		Quantity<WeightUnit> weightInGram = new Quantity<>(1000.0, WeightUnit.GRAM);
 
-		System.out.println();
 		System.out.println("Example Output of running the App");
+		System.out.println();
+		System.out.println("Length Operations (UC1–UC8 functionality preserved):");
+		System.out.println();
+		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(12.0, LengthUnit.INCHES))",
+				String.valueOf(demonstrateEquality(lengthInFeet, lengthInInches)));
+		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES)",
+				lengthInFeet.convertTo(LengthUnit.INCHES).toString());
+		printExampleLine(
+				"new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET)",
+				lengthInFeet.add(lengthInInches, LengthUnit.FEET).toString());
 
 		System.out.println();
-		System.out.println("Equality Comparisons:");
+		System.out.println("Weight Operations (UC9 functionality preserved):");
 		System.out.println();
-		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1.0, KILOGRAM))",
-				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 1.0, WeightUnit.KILOGRAM)));
-		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1000.0, GRAM))",
-				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM)));
-		printExampleLine("Quantity(2.0, POUND).equals(Quantity(2.0, POUND))",
-				String.valueOf(demonstrateWeightComparison(2.0, WeightUnit.POUND, 2.0, WeightUnit.POUND)));
-		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(~2.20462, POUND))",
-				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 2.2046244202, WeightUnit.POUND))
-						+ " (within epsilon)");
-		printExampleLine("Quantity(500.0, GRAM).equals(Quantity(0.5, KILOGRAM))",
-				String.valueOf(demonstrateWeightComparison(500.0, WeightUnit.GRAM, 0.5, WeightUnit.KILOGRAM)));
-		printExampleLine("Quantity(1.0, POUND).equals(Quantity(~453.592, GRAM))",
-				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.POUND, 453.592, WeightUnit.GRAM))
-						+ " (within epsilon)");
+		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).equals(new Quantity<>(1000.0, WeightUnit.GRAM))",
+				String.valueOf(demonstrateEquality(weightInKilogram, weightInGram)));
+		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM)",
+				weightInKilogram.convertTo(WeightUnit.GRAM).toString());
+		printExampleLine(
+				"new Quantity<>(1.0, WeightUnit.KILOGRAM).add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM)",
+				weightInKilogram.add(weightInGram, WeightUnit.KILOGRAM).toString());
 
 		System.out.println();
-		System.out.println("Unit Conversions:");
+		System.out.println("Cross-Category Prevention:");
 		System.out.println();
-		printExampleLine("Quantity(1.0, KILOGRAM).convertTo(GRAM)",
-				formatWeightQuantity(demonstrateWeightConversion(1.0, WeightUnit.KILOGRAM, WeightUnit.GRAM)));
-		printExampleLine("Quantity(2.0, POUND).convertTo(KILOGRAM)",
-				"Quantity(~0.907184, KILOGRAM)");
-		printExampleLine("Quantity(500.0, GRAM).convertTo(POUND)",
-				"Quantity(~1.10231, POUND)");
-		printExampleLine("Quantity(0.0, KILOGRAM).convertTo(GRAM)",
-				formatWeightQuantity(demonstrateWeightConversion(0.0, WeightUnit.KILOGRAM, WeightUnit.GRAM)));
+		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(1.0, WeightUnit.KILOGRAM))",
+				String.valueOf(lengthInFeet.equals(weightInKilogram)));
+		printExampleLine("demonstrateEquality(Quantity<LengthUnit>, Quantity<WeightUnit>)",
+				"Compiler error (type mismatch)");
 
 		System.out.println();
-		System.out.println("Addition Operations (Implicit Target Unit):");
+		System.out.println("Generic Demonstration Methods:");
 		System.out.println();
-		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(2.0, KILOGRAM))",
-				formatWeightQuantity(demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 2.0, WeightUnit.KILOGRAM)));
-		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(1000.0, GRAM))",
-				formatWeightQuantity(demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM)));
-		printExampleLine("Quantity(500.0, GRAM).add(Quantity(0.5, KILOGRAM))",
-				formatWeightQuantity(demonstrateWeightAddition(500.0, WeightUnit.GRAM, 0.5, WeightUnit.KILOGRAM)));
-
-		System.out.println();
-		System.out.println("Addition Operations (Explicit Target Unit):");
-		System.out.println();
-		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(1000.0, GRAM), GRAM)",
-				formatWeightQuantity(
-						demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM, WeightUnit.GRAM)));
-		printExampleLine("Quantity(1.0, POUND).add(Quantity(453.592, GRAM), POUND)",
-				formatApproxWeightQuantity(
-						demonstrateWeightAddition(1.0, WeightUnit.POUND, 453.592, WeightUnit.GRAM, WeightUnit.POUND)));
-		printExampleLine("Quantity(2.0, KILOGRAM).add(Quantity(4.0, POUND), KILOGRAM)",
-				"Quantity(~3.82, KILOGRAM)");
-
-		System.out.println();
-		System.out.println("Category Incompatibility:");
-		System.out.println();
-		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1.0, FOOT))",
-				String.valueOf(new QuantityWeight(1.0, WeightUnit.KILOGRAM)
-						.equals(new QuantityLength(1.0, LengthUnit.FEET))) + " (or exception)");
+		printExampleLine("demonstrateEquality(q1, q2) where both are Quantity<LengthUnit>",
+				demonstrateGenericHandling(lengthInFeet, lengthInInches));
+		printExampleLine("demonstrateEquality(w1, w2) where both are Quantity<WeightUnit>",
+				demonstrateGenericHandling(weightInKilogram, weightInGram));
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
@@ -264,6 +290,12 @@ public final class QuantityMeasurementApp {
 
 	private static void validateWeight(QuantityWeight weight, String message) {
 		if (weight == null) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	private static void validateGenericQuantity(Quantity<? extends IMeasurable> quantity, String message) {
+		if (quantity == null) {
 			throw new IllegalArgumentException(message);
 		}
 	}
@@ -296,23 +328,11 @@ public final class QuantityMeasurementApp {
 		System.out.println("Output: " + formatQuantity(result));
 	}
 
-	private static String formatValue(double value) {
-		return VALUE_FORMAT.format(value);
-	}
-
 	private static String formatQuantity(QuantityLength length) {
-		return "Quantity(" + formatValue(length.getValue()) + ", " + length.getUnit() + ")";
-	}
-
-	private static String formatWeightQuantity(QuantityWeight weight) {
-		return "Quantity(" + formatValue(weight.getValue()) + ", " + weight.getUnit() + ")";
-	}
-
-	private static String formatApproxWeightQuantity(QuantityWeight weight) {
-		return "Quantity(~" + formatValue(weight.getValue()) + ", " + weight.getUnit() + ")";
+		return new Quantity<>(length.getValue(), length.getUnit()).toString();
 	}
 
 	private static void printExampleLine(String input, String output) {
-		System.out.println("Input: " + input + " -> Output: " + output);
+		System.out.println("Input: " + input + " → Output: " + output);
 	}
 }

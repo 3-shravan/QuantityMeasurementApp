@@ -3,28 +3,23 @@ package com.shravan;
 import java.util.Objects;
 
 public final class QuantityWeight {
-  private static final double EPSILON = 1e-6;
-
-  private final double value;
-  private final WeightUnit unit;
+  private final Quantity<WeightUnit> quantity;
 
   public QuantityWeight(double value, WeightUnit unit) {
-    validateValue(value);
-    this.unit = Objects.requireNonNull(unit, "Weight unit cannot be null");
-    this.value = value;
+    this.quantity = new Quantity<>(value, Objects.requireNonNull(unit, "Weight unit cannot be null"));
   }
 
   public boolean compare(QuantityWeight otherWeight) {
     Objects.requireNonNull(otherWeight, "Weight to compare cannot be null");
-    return Math.abs(this.toBaseUnit() - otherWeight.toBaseUnit()) < EPSILON;
+    return quantity.compare(otherWeight.quantity);
   }
 
   public QuantityWeight convertTo(WeightUnit targetUnit) {
-    return new QuantityWeight(convert(this.value, this.unit, targetUnit), targetUnit);
+    return new QuantityWeight(convert(getValue(), getUnit(), targetUnit), targetUnit);
   }
 
   public QuantityWeight add(QuantityWeight otherWeight) {
-    return addInternal(otherWeight, this.unit);
+    return addInternal(otherWeight, getUnit());
   }
 
   public QuantityWeight add(QuantityWeight otherWeight, WeightUnit targetUnit) {
@@ -46,15 +41,15 @@ public final class QuantityWeight {
   }
 
   public double getValue() {
-    return value;
+    return quantity.getValue();
   }
 
   public WeightUnit getUnit() {
-    return unit;
+    return quantity.getUnit();
   }
 
   public double toBaseUnit() {
-    return unit.convertToBaseUnit(value);
+    return getUnit().convertToBaseUnit(getValue());
   }
 
   @Override
@@ -70,12 +65,12 @@ public final class QuantityWeight {
 
   @Override
   public int hashCode() {
-    return Double.hashCode(Math.round(toBaseUnit() / EPSILON) * EPSILON);
+    return quantity.hashCode();
   }
 
   @Override
   public String toString() {
-    return String.format("%.2f %s", value, unit);
+    return String.format("%.2f %s", getValue(), getUnit());
   }
 
   private QuantityWeight addInternal(QuantityWeight otherWeight, WeightUnit targetUnit) {
@@ -88,14 +83,9 @@ public final class QuantityWeight {
 
   private static void validateConversionInput(double inputValue, WeightUnit sourceUnit,
       WeightUnit targetUnit) {
-    validateValue(inputValue);
+    IMeasurable.validateValue(inputValue);
     Objects.requireNonNull(sourceUnit, "Source unit cannot be null");
     Objects.requireNonNull(targetUnit, "Target unit cannot be null");
   }
 
-  private static void validateValue(double value) {
-    if (!Double.isFinite(value)) {
-      throw new IllegalArgumentException("Weight value must be numeric");
-    }
-  }
 }

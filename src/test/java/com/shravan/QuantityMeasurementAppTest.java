@@ -2,7 +2,9 @@ package com.shravan;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -906,6 +908,506 @@ public class QuantityMeasurementAppTest {
         QuantityWeight sum = QuantityMeasurementApp.demonstrateWeightAddition(2.0, WeightUnit.KILOGRAM, 4.0,
                 WeightUnit.POUND, WeightUnit.KILOGRAM);
         assertEquals(3.814368, sum.getValue(), 1e-3);
+    }
+
+    @Test
+    public void testIMeasurableInterface_LengthUnitImplementation() {
+        assertTrue(IMeasurable.class.isAssignableFrom(LengthUnit.class));
+        assertEquals(1.0, LengthUnit.FEET.getConversionFactor(), EPS);
+        assertEquals(1.0, LengthUnit.FEET.convertToBaseUnit(1.0), EPS);
+        assertEquals(12.0, LengthUnit.INCHES.convertFromBaseUnit(1.0), EPS);
+        assertEquals("FEET", LengthUnit.FEET.getUnitName());
+    }
+
+    @Test
+    public void testIMeasurableInterface_WeightUnitImplementation() {
+        assertTrue(IMeasurable.class.isAssignableFrom(WeightUnit.class));
+        assertEquals(1.0, WeightUnit.KILOGRAM.getConversionFactor(), EPS);
+        assertEquals(1.0, WeightUnit.KILOGRAM.convertToBaseUnit(1.0), EPS);
+        assertEquals(1000.0, WeightUnit.GRAM.convertFromBaseUnit(1.0), EPS);
+        assertEquals("KILOGRAM", WeightUnit.KILOGRAM.getUnitName());
+    }
+
+    @Test
+    public void testIMeasurableInterface_ConsistentBehavior() throws Exception {
+        java.lang.reflect.Method conversionFactor = IMeasurable.class.getMethod("getConversionFactor");
+        java.lang.reflect.Method convertToBaseUnit = IMeasurable.class.getMethod("convertToBaseUnit", double.class);
+        java.lang.reflect.Method convertFromBaseUnit = IMeasurable.class.getMethod("convertFromBaseUnit", double.class);
+        java.lang.reflect.Method getUnitName = IMeasurable.class.getMethod("getUnitName");
+
+        assertEquals(double.class, conversionFactor.getReturnType());
+        assertEquals(double.class, convertToBaseUnit.getReturnType());
+        assertEquals(double.class, convertFromBaseUnit.getReturnType());
+        assertEquals(String.class, getUnitName.getReturnType());
+
+        assertEquals(3.0, LengthUnit.YARDS.convertToBaseUnit(1.0), EPS);
+        assertEquals(1.0, WeightUnit.GRAM.convertToBaseUnit(1000.0), EPS);
+    }
+
+    @Test
+    public void testGenericQuantity_LengthOperations_Equality() {
+        assertTrue(new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(12.0, LengthUnit.INCHES)));
+    }
+
+    @Test
+    public void testGenericQuantity_WeightOperations_Equality() {
+        assertTrue(new Quantity<>(1.0, WeightUnit.KILOGRAM).equals(new Quantity<>(1000.0, WeightUnit.GRAM)));
+    }
+
+    @Test
+    public void testGenericQuantity_LengthOperations_Conversion() {
+        assertEquals("Quantity(12.0, INCHES)",
+                new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES).toString());
+    }
+
+    @Test
+    public void testGenericQuantity_WeightOperations_Conversion() {
+        assertEquals("Quantity(1000.0, GRAM)",
+                new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM).toString());
+    }
+
+    @Test
+    public void testGenericQuantity_LengthOperations_Addition() {
+        assertEquals("Quantity(2.0, FEET)",
+                new Quantity<>(1.0, LengthUnit.FEET)
+                        .add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET)
+                        .toString());
+    }
+
+    @Test
+    public void testGenericQuantity_WeightOperations_Addition() {
+        assertEquals("Quantity(2.0, KILOGRAM)",
+                new Quantity<>(1.0, WeightUnit.KILOGRAM)
+                        .add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM)
+                        .toString());
+    }
+
+    @Test
+    public void testCrossCategoryPrevention_LengthVsWeight() {
+        assertFalse(new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(1.0, WeightUnit.KILOGRAM)));
+    }
+
+    @Test
+    public void testCrossCategoryPrevention_CompilerTypeSafety() throws Exception {
+        String source = "import com.shravan.*;\n"
+                + "public class TypeMismatchCheck {\n"
+                + "  public static void main(String[] args) {\n"
+                + "    Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);\n"
+                + "    Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);\n"
+                + "    QuantityMeasurementApp.demonstrateEquality(length, weight);\n"
+                + "  }\n"
+                + "}\n";
+
+        assertFalse(compileSnippet("TypeMismatchCheck", source));
+    }
+
+    @Test
+    public void testGenericQuantity_ConstructorValidation_NullUnit() {
+        expectException(IllegalArgumentException.class, () -> new Quantity<>(1.0, (LengthUnit) null));
+    }
+
+    @Test
+    public void testGenericQuantity_ConstructorValidation_InvalidValue() {
+        expectException(IllegalArgumentException.class, () -> new Quantity<>(Double.NaN, LengthUnit.FEET));
+    }
+
+    @Test
+    public void testGenericQuantity_Conversion_AllUnitCombinations() {
+        assertAllConversionsMatchBaseUnit(LengthUnit.values(), new double[] { 1.0, 3.0, 30.48 });
+        assertAllConversionsMatchBaseUnit(WeightUnit.values(), new double[] { 1.0, 2.5, 1000.0 });
+    }
+
+    @Test
+    public void testGenericQuantity_Addition_AllUnitCombinations() {
+        assertAllAdditionsMatchBaseUnit(LengthUnit.values(), 2.0, 3.0);
+        assertAllAdditionsMatchBaseUnit(WeightUnit.values(), 1.0, 4.0);
+    }
+
+    @Test
+    public void testBackwardCompatibility_AllUC1Through9Tests() {
+        assertTrue(new QuantityLength(1.0, LengthUnit.FEET).equals(new QuantityLength(12.0, LengthUnit.INCHES)));
+        assertEquals(36.0,
+                QuantityMeasurementApp.demonstrateLengthConversion(3.0, LengthUnit.FEET, LengthUnit.INCHES).getValue(),
+                EPS);
+        assertEquals(2.0,
+                QuantityMeasurementApp.demonstrateLengthAddition(1.0, LengthUnit.FEET, 12.0, LengthUnit.INCHES,
+                        LengthUnit.FEET).getValue(),
+                EPS);
+        assertTrue(new QuantityWeight(1.0, WeightUnit.KILOGRAM).equals(new QuantityWeight(1000.0, WeightUnit.GRAM)));
+    }
+
+    @Test
+    public void testQuantityMeasurementApp_SimplifiedDemonstration_Equality() {
+        assertTrue(QuantityMeasurementApp.demonstrateEquality(new Quantity<>(1.0, LengthUnit.FEET),
+                new Quantity<>(12.0, LengthUnit.INCHES)));
+        assertTrue(QuantityMeasurementApp.demonstrateEquality(new Quantity<>(1.0, WeightUnit.KILOGRAM),
+                new Quantity<>(1000.0, WeightUnit.GRAM)));
+    }
+
+    @Test
+    public void testQuantityMeasurementApp_SimplifiedDemonstration_Conversion() {
+        assertEquals("Quantity(12.0, INCHES)",
+                QuantityMeasurementApp.demonstrateConversion(new Quantity<>(1.0, LengthUnit.FEET), LengthUnit.INCHES)
+                        .toString());
+        assertEquals("Quantity(1000.0, GRAM)", QuantityMeasurementApp
+                .demonstrateConversion(new Quantity<>(1.0, WeightUnit.KILOGRAM), WeightUnit.GRAM).toString());
+    }
+
+    @Test
+    public void testQuantityMeasurementApp_SimplifiedDemonstration_Addition() {
+        assertEquals("Quantity(2.0, FEET)",
+                QuantityMeasurementApp.demonstrateAddition(new Quantity<>(1.0, LengthUnit.FEET),
+                        new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET).toString());
+        assertEquals("Quantity(2.0, KILOGRAM)", QuantityMeasurementApp
+                .demonstrateAddition(new Quantity<>(1.0, WeightUnit.KILOGRAM), new Quantity<>(1000.0, WeightUnit.GRAM),
+                        WeightUnit.KILOGRAM)
+                .toString());
+    }
+
+    @Test
+    public void testTypeWildcard_FlexibleSignatures() {
+        assertEquals("FEET", describeQuantity(new Quantity<>(1.0, LengthUnit.FEET)));
+        assertEquals("KILOGRAM", describeQuantity(new Quantity<>(1.0, WeightUnit.KILOGRAM)));
+    }
+
+    @Test
+    public void testScalability_NewUnitEnumIntegration() {
+        Quantity<VolumeUnit> liters = new Quantity<>(1.0, VolumeUnit.LITER);
+        Quantity<VolumeUnit> milliliters = liters.convertTo(VolumeUnit.MILLILITER);
+
+        assertEquals("Quantity(1000.0, MILLILITER)", milliliters.toString());
+        assertTrue(liters.equals(new Quantity<>(1000.0, VolumeUnit.MILLILITER)));
+    }
+
+    @Test
+    public void testScalability_MultipleNewCategories() {
+        assertTrue(new Quantity<>(1.0, TimeScaleUnit.HOUR).equals(new Quantity<>(60.0, TimeScaleUnit.MINUTE)));
+        assertTrue(new Quantity<>(2.0, VolumeUnit.LITER).equals(new Quantity<>(2000.0, VolumeUnit.MILLILITER)));
+        assertTrue(new Quantity<>(1.0, TemperatureDeltaUnit.DEGREE)
+                .equals(new Quantity<>(1000.0, TemperatureDeltaUnit.MILLI_DEGREE)));
+    }
+
+    @Test
+    public void testGenericBoundedTypeParameter_Enforcement() throws Exception {
+        String source = "import com.shravan.Quantity;\n"
+                + "enum InvalidUnit { ONE }\n"
+                + "public class InvalidBoundCheck {\n"
+                + "  Quantity<InvalidUnit> quantity = new Quantity<>(1.0, InvalidUnit.ONE);\n"
+                + "}\n";
+
+        assertFalse(compileSnippet("InvalidBoundCheck", source));
+    }
+
+    @Test
+    public void testHashCode_GenericQuantity_Consistency() {
+        assertEquals(new Quantity<>(1.0, LengthUnit.FEET).hashCode(),
+                new Quantity<>(12.0, LengthUnit.INCHES).hashCode());
+        assertEquals(new Quantity<>(1.0, WeightUnit.KILOGRAM).hashCode(),
+                new Quantity<>(1000.0, WeightUnit.GRAM).hashCode());
+    }
+
+    @Test
+    public void testEquals_GenericQuantity_ContractPreservation() {
+        Quantity<LengthUnit> first = new Quantity<>(1.0, LengthUnit.YARDS);
+        Quantity<LengthUnit> second = new Quantity<>(3.0, LengthUnit.FEET);
+        Quantity<LengthUnit> third = new Quantity<>(36.0, LengthUnit.INCHES);
+
+        assertTrue(first.equals(first));
+        assertTrue(first.equals(second));
+        assertTrue(second.equals(first));
+        assertTrue(second.equals(third));
+        assertTrue(first.equals(third));
+    }
+
+    @Test
+    public void testEnumAsUnitCarrier_BehaviorEncapsulation() {
+        IMeasurable length = LengthUnit.INCHES;
+        IMeasurable weight = WeightUnit.GRAM;
+
+        assertEquals(1.0, length.convertToBaseUnit(12.0), EPS);
+        assertEquals(1.0, weight.convertToBaseUnit(1000.0), EPS);
+    }
+
+    @Test
+    public void testTypeErasure_RuntimeSafety() {
+        Quantity<? extends IMeasurable> rawLength = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<? extends IMeasurable> rawWeight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
+
+        assertFalse(rawLength.equals(rawWeight));
+    }
+
+    @Test
+    public void testCompositionOverInheritance_Flexibility() {
+        Quantity<CustomUnit> customQuantity = new Quantity<>(2.0, new CustomUnit(10.0, "TOKEN"));
+        Quantity<CustomUnit> converted = customQuantity.convertTo(new CustomUnit(5.0, "HALF_TOKEN"));
+
+        assertEquals("Quantity(4.0, HALF_TOKEN)", converted.toString());
+    }
+
+    @Test
+    public void testCodeReduction_DRYValidation() throws Exception {
+        int genericLines = java.nio.file.Files.readAllLines(
+                java.nio.file.Paths.get("src/main/java/com/shravan/Quantity.java")).size();
+        int wrapperLines = java.nio.file.Files.readAllLines(
+                java.nio.file.Paths.get("src/main/java/com/shravan/QuantityLength.java")).size()
+                + java.nio.file.Files
+                        .readAllLines(java.nio.file.Paths.get("src/main/java/com/shravan/QuantityWeight.java"))
+                        .size();
+
+        assertTrue(genericLines < wrapperLines);
+    }
+
+    @Test
+    public void testMaintainability_SingleSourceOfTruth() throws Exception {
+        java.lang.reflect.Field lengthField = QuantityLength.class.getDeclaredField("quantity");
+        java.lang.reflect.Field weightField = QuantityWeight.class.getDeclaredField("quantity");
+
+        assertEquals(Quantity.class, lengthField.getType());
+        assertEquals(Quantity.class, weightField.getType());
+        assertNotNull(Quantity.class.getDeclaredMethod("add", Quantity.class, IMeasurable.class));
+        assertNotNull(Quantity.class.getDeclaredMethod("equals", Object.class));
+    }
+
+    @Test
+    public void testArchitecturalReadiness_MultipleNewCategories() {
+        assertTrue(new Quantity<>(1.0, VolumeUnit.LITER).equals(new Quantity<>(1000.0, VolumeUnit.MILLILITER)));
+        assertTrue(new Quantity<>(1.0, TimeScaleUnit.HOUR).equals(new Quantity<>(60.0, TimeScaleUnit.MINUTE)));
+        assertTrue(new Quantity<>(1.0, TemperatureDeltaUnit.DEGREE)
+                .equals(new Quantity<>(1000.0, TemperatureDeltaUnit.MILLI_DEGREE)));
+        assertTrue(new Quantity<>(1.0, DistanceStepUnit.KILOSTEP)
+                .equals(new Quantity<>(1000.0, DistanceStepUnit.STEP)));
+        assertTrue(new Quantity<>(1.0, DataUnit.KILOBYTE).equals(new Quantity<>(1000.0, DataUnit.BYTE)));
+    }
+
+    @Test
+    public void testPerformance_GenericOverhead() {
+        long start = System.nanoTime();
+        Quantity<LengthUnit> quantity = new Quantity<>(1.0, LengthUnit.FEET);
+
+        for (int i = 0; i < 20000; i++) {
+            quantity = quantity.add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET)
+                    .convertTo(LengthUnit.INCHES)
+                    .convertTo(LengthUnit.FEET);
+        }
+
+        long elapsedMillis = java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+        assertTrue(elapsedMillis < 5000);
+    }
+
+    @Test
+    public void testDocumentation_PatternClarity() {
+        Quantity<VolumeUnit> sample = new Quantity<>(1.0, VolumeUnit.LITER);
+        assertEquals("Unified handling",
+                QuantityMeasurementApp.demonstrateGenericHandling(sample,
+                        new Quantity<>(1000.0, VolumeUnit.MILLILITER)));
+    }
+
+    @Test
+    public void testInterfaceSegregation_MinimalContract() {
+        java.lang.reflect.Method[] methods = IMeasurable.class.getDeclaredMethods();
+        assertEquals(5, methods.length);
+    }
+
+    @Test
+    public void testImmutability_GenericQuantity() throws Exception {
+        java.lang.reflect.Field valueField = Quantity.class.getDeclaredField("value");
+        java.lang.reflect.Field unitField = Quantity.class.getDeclaredField("unit");
+
+        assertTrue(java.lang.reflect.Modifier.isFinal(valueField.getModifiers()));
+        assertTrue(java.lang.reflect.Modifier.isFinal(unitField.getModifiers()));
+        assertFalse(hasSetter(Quantity.class));
+
+        Quantity<LengthUnit> original = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> converted = original.convertTo(LengthUnit.INCHES);
+        assertEquals("Quantity(1.0, FEET)", original.toString());
+        assertEquals("Quantity(12.0, INCHES)", converted.toString());
+    }
+
+    private <U extends IMeasurable> void assertAllConversionsMatchBaseUnit(U[] units, double[] samples) {
+        for (U source : units) {
+            for (double sample : samples) {
+                Quantity<U> quantity = new Quantity<>(sample, source);
+                double baseValue = source.convertToBaseUnit(sample);
+
+                for (U target : units) {
+                    Quantity<U> converted = quantity.convertTo(target);
+                    double expected = target.convertFromBaseUnit(baseValue);
+                    assertEquals(expected, converted.getValue(), 1e-2);
+                }
+            }
+        }
+    }
+
+    private <U extends IMeasurable> void assertAllAdditionsMatchBaseUnit(U[] units, double left, double right) {
+        for (U firstUnit : units) {
+            for (U secondUnit : units) {
+                for (U targetUnit : units) {
+                    Quantity<U> first = new Quantity<>(left, firstUnit);
+                    Quantity<U> second = new Quantity<>(right, secondUnit);
+                    Quantity<U> sum = first.add(second, targetUnit);
+
+                    double expectedBase = firstUnit.convertToBaseUnit(left) + secondUnit.convertToBaseUnit(right);
+                    double expected = targetUnit.convertFromBaseUnit(expectedBase);
+                    assertEquals(expected, sum.getValue(), 1e-2);
+                }
+            }
+        }
+    }
+
+    private static String describeQuantity(Quantity<? extends IMeasurable> quantity) {
+        return quantity.getUnit().getUnitName();
+    }
+
+    private static boolean hasSetter(Class<?> type) {
+        for (java.lang.reflect.Method method : type.getDeclaredMethods()) {
+            if (method.getName().startsWith("set")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean compileSnippet(String className, String source) throws Exception {
+        javax.tools.JavaCompiler compiler = javax.tools.ToolProvider.getSystemJavaCompiler();
+        assertNotNull(compiler);
+
+        java.nio.file.Path tempDir = java.nio.file.Files.createTempDirectory("quantity-compile-");
+
+        try {
+            java.nio.file.Path sourceFile = tempDir.resolve(className + ".java");
+            java.nio.file.Files.write(sourceFile, source.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            String classPath = System.getProperty("java.class.path") + java.io.File.pathSeparator
+                    + java.nio.file.Paths.get("target", "classes").toAbsolutePath().toString();
+
+            int result = compiler.run(null, null, null, "-classpath", classPath, "-d", tempDir.toString(),
+                    sourceFile.toString());
+            return result == 0;
+        } finally {
+            java.nio.file.Files.walk(tempDir)
+                    .sorted(java.util.Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            java.nio.file.Files.deleteIfExists(path);
+                        } catch (java.io.IOException ignored) {
+                        }
+                    });
+        }
+    }
+
+    private static void expectException(Class<? extends Throwable> expectedType, ThrowingRunnable runnable) {
+        try {
+            runnable.run();
+            fail("Expected exception: " + expectedType.getSimpleName());
+        } catch (Throwable error) {
+            if (!expectedType.isInstance(error)) {
+                fail("Expected " + expectedType.getSimpleName() + " but got " + error.getClass().getSimpleName());
+            }
+        }
+    }
+
+    private interface ThrowingRunnable {
+        void run() throws Exception;
+    }
+
+    private enum VolumeUnit implements IMeasurable {
+        LITER(1.0),
+        MILLILITER(0.001);
+
+        private final double conversionFactor;
+
+        VolumeUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    private enum TimeScaleUnit implements IMeasurable {
+        HOUR(1.0),
+        MINUTE(1.0 / 60.0);
+
+        private final double conversionFactor;
+
+        TimeScaleUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    private enum TemperatureDeltaUnit implements IMeasurable {
+        DEGREE(1.0),
+        MILLI_DEGREE(0.001);
+
+        private final double conversionFactor;
+
+        TemperatureDeltaUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    private enum DistanceStepUnit implements IMeasurable {
+        KILOSTEP(1.0),
+        STEP(0.001);
+
+        private final double conversionFactor;
+
+        DistanceStepUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    private enum DataUnit implements IMeasurable {
+        KILOBYTE(1.0),
+        BYTE(0.001);
+
+        private final double conversionFactor;
+
+        DataUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    private static final class CustomUnit implements IMeasurable {
+        private final double conversionFactor;
+        private final String unitName;
+
+        private CustomUnit(double conversionFactor, String unitName) {
+            this.conversionFactor = conversionFactor;
+            this.unitName = unitName;
+        }
+
+        @Override
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+
+        @Override
+        public String getUnitName() {
+            return unitName;
+        }
     }
 
 }

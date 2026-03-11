@@ -1,0 +1,113 @@
+package com.shravan;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+
+public final class Quantity<U extends IMeasurable> {
+
+  private static final int OUTPUT_SCALE = 2;
+  private static final int BASE_COMPARISON_SCALE = 4;
+
+  private final double value;
+  private final U unit;
+
+  public Quantity(double value, U unit) {
+    IMeasurable.validateValue(value);
+    if (unit == null) {
+      throw new IllegalArgumentException("Unit cannot be null");
+    }
+    this.unit = unit;
+    this.value = value;
+  }
+
+  public double getValue() {
+    return value;
+  }
+
+  public U getUnit() {
+    return unit;
+  }
+
+  public boolean compare(Quantity<U> other) {
+    Objects.requireNonNull(other, "Quantity to compare cannot be null");
+    return normalizedBaseValue() == other.normalizedBaseValue();
+  }
+
+  public Quantity<U> convertTo(U targetUnit) {
+    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
+    double convertedValue = targetUnit.convertFromBaseUnit(toBaseUnit());
+    return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
+  }
+
+  public Quantity<U> add(Quantity<U> other) {
+    return add(other, unit);
+  }
+
+  public Quantity<U> add(Quantity<U> other, U targetUnit) {
+    Objects.requireNonNull(other, "Quantity to add cannot be null");
+    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
+
+    double sumInBaseUnit = toBaseUnit() + other.toBaseUnit();
+    double convertedValue = targetUnit.convertFromBaseUnit(sumInBaseUnit);
+    return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
+  }
+
+  public static <U extends IMeasurable> Quantity<U> add(double firstValue, U firstUnit,
+      double secondValue, U secondUnit, U targetUnit) {
+    return new Quantity<>(firstValue, firstUnit).add(new Quantity<>(secondValue, secondUnit), targetUnit);
+  }
+
+  public static <U extends IMeasurable> double convert(double value, U sourceUnit, U targetUnit) {
+    return new Quantity<>(value, sourceUnit).convertTo(targetUnit).getValue();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Quantity<?>)) {
+      return false;
+    }
+
+    Quantity<?> that = (Quantity<?>) other;
+    if (this.unit.getClass() != that.unit.getClass()) {
+      return false;
+    }
+
+    return Double.compare(this.normalizedBaseValue(), that.normalizedBaseValue()) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(unit.getClass(), normalizedBaseValue());
+  }
+
+  @Override
+  public String toString() {
+    return "Quantity(" + formatValue(value) + ", " + unit.getUnitName() + ")";
+  }
+
+  private double toBaseUnit() {
+    return unit.convertToBaseUnit(value);
+  }
+
+  private double normalizedBaseValue() {
+    return round(toBaseUnit(), BASE_COMPARISON_SCALE);
+  }
+
+  private static double round(double value, int scale) {
+    return BigDecimal.valueOf(value)
+        .setScale(scale, RoundingMode.HALF_UP)
+        .doubleValue();
+  }
+
+  private static String formatValue(double value) {
+    BigDecimal formattedValue = BigDecimal.valueOf(value).stripTrailingZeros();
+    if (formattedValue.scale() < 1) {
+      formattedValue = formattedValue.setScale(1, RoundingMode.UNNECESSARY);
+    }
+    return formattedValue.toPlainString();
+  }
+}

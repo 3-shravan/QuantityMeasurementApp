@@ -1,6 +1,6 @@
 package com.shravan;
 
-public enum WeightUnit {
+public enum WeightUnit implements IMeasurable {
   KILOGRAM(1.0),
   GRAM(0.001),
   POUND(0.453592);
@@ -15,19 +15,8 @@ public enum WeightUnit {
     return conversionFactor;
   }
 
-  public double convertToBaseUnit(double value) {
-    validateValue(value);
-    return value * conversionFactor;
-  }
-
-  public double convertFromBaseUnit(double baseValue) {
-    validateValue(baseValue);
-    return baseValue / conversionFactor;
-  }
-
-  private static void validateValue(double value) {
-    if (!Double.isFinite(value)) {
-      throw new IllegalArgumentException("Weight value must be numeric");
-    }
+  @Override
+  public String getUnitName() {
+    return name();
   }
 }
