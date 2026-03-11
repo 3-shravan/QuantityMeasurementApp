@@ -48,7 +48,16 @@ public final class Length {
   }
 
   public Length add(Length thatLength) {
+    return addInternal(thatLength, this.unit);
+  }
+
+  public Length add(Length thatLength, LengthUnit targetUnit) {
+    return addInternal(thatLength, targetUnit);
+  }
+
+  private Length addInternal(Length thatLength, LengthUnit targetUnit) {
     Objects.requireNonNull(thatLength, "Operand length cannot be null");
+    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
     if (!Double.isFinite(thatLength.value)) {
       throw new IllegalArgumentException("Length value must be numeric");
     }
@@ -56,10 +65,10 @@ public final class Length {
     // Sum in base unit (inches)
     double sumInBase = this.convertToBaseUnit() + thatLength.convertToBaseUnit();
 
-    // Convert sum back to this instance's unit
-    double sumInThisUnit = sumInBase / this.unit.getConversionFactor();
+    // Convert sum back to target unit
+    double sumInTargetUnit = sumInBase / targetUnit.getConversionFactor();
 
-    return new Length(sumInThisUnit, this.unit);
+    return new Length(sumInTargetUnit, targetUnit);
   }
 
   /**

@@ -119,6 +119,40 @@ public class QuantityMeasurementApp {
 		printAdditionDemo(5.0, Length.LengthUnit.FEET, -2.0, Length.LengthUnit.FEET);
 	}
 
+	public static Length demonstrateLengthAddition(Length length1, Length length2, Length.LengthUnit targetUnit) {
+		if (length1 == null || length2 == null) {
+			throw new IllegalArgumentException("Lengths to add cannot be null");
+		}
+		return length1.add(length2, targetUnit);
+	}
+
+	public static Length demonstrateLengthAddition(double value1, Length.LengthUnit unit1, double value2,
+			Length.LengthUnit unit2, Length.LengthUnit targetUnit) {
+		Length length1 = new Length(value1, unit1);
+		Length length2 = new Length(value2, unit2);
+		return demonstrateLengthAddition(length1, length2, targetUnit);
+	}
+
+	private static void printAdditionDemo(double value1, Length.LengthUnit unit1, double value2,
+			Length.LengthUnit unit2, Length.LengthUnit targetUnit) {
+		Length result = demonstrateLengthAddition(value1, unit1, value2, unit2, targetUnit);
+		System.out.println("Input: add(Quantity(" + value1 + ", " + unit1 + "), Quantity(" + value2 + ", " + unit2
+				+ "), " + targetUnit + ")");
+		System.out.println("Output: Quantity(" + result.getValue() + ", " + result.getUnit() + ")");
+	}
+
+	public static void demonstrateAdditionWithTargetUnitUseCases() {
+		printAdditionDemo(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES, Length.LengthUnit.FEET);
+		printAdditionDemo(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES, Length.LengthUnit.INCHES);
+		printAdditionDemo(1.0, Length.LengthUnit.FEET, 12.0, Length.LengthUnit.INCHES, Length.LengthUnit.YARDS);
+		printAdditionDemo(1.0, Length.LengthUnit.YARDS, 3.0, Length.LengthUnit.FEET, Length.LengthUnit.YARDS);
+		printAdditionDemo(36.0, Length.LengthUnit.INCHES, 1.0, Length.LengthUnit.YARDS, Length.LengthUnit.FEET);
+		printAdditionDemo(2.54, Length.LengthUnit.CENTIMETERS, 1.0, Length.LengthUnit.INCHES,
+				Length.LengthUnit.CENTIMETERS);
+		printAdditionDemo(5.0, Length.LengthUnit.FEET, 0.0, Length.LengthUnit.INCHES, Length.LengthUnit.YARDS);
+		printAdditionDemo(5.0, Length.LengthUnit.FEET, -2.0, Length.LengthUnit.FEET, Length.LengthUnit.INCHES);
+	}
+
 	public static void main(String[] args) {
 		demonstrateFeetEquality();
 		demonstrateInchesEquality();
@@ -134,5 +168,8 @@ public class QuantityMeasurementApp {
 
 		// uc-6
 		demonstrateAdditionUseCases();
+
+		// uc-7
+		demonstrateAdditionWithTargetUnitUseCases();
 	}
 }

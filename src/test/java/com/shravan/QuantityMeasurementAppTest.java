@@ -359,4 +359,155 @@ public class QuantityMeasurementAppTest {
         assertEquals(0.003, sum.getValue(), 1e-6);
     }
 
+    @Test
+    public void testAddition_ExplicitTargetUnit_Feet() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.FEET);
+        assertEquals(2.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.FEET, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_Inches() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.INCHES);
+        assertEquals(24.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.INCHES, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_Yards() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.YARDS);
+        assertEquals(0.667, sum.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_Centimeters() {
+        Length a = new Length(1.0, LengthUnit.INCHES);
+        Length b = new Length(1.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.CENTIMETERS);
+        assertEquals(5.08, sum.getValue(), 1e-2);
+        assertEquals(LengthUnit.CENTIMETERS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_SameAsFirstOperand() {
+        Length a = new Length(2.0, LengthUnit.YARDS);
+        Length b = new Length(3.0, LengthUnit.FEET);
+        Length sum = a.add(b, LengthUnit.YARDS);
+        assertEquals(3.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_SameAsSecondOperand() {
+        Length a = new Length(2.0, LengthUnit.YARDS);
+        Length b = new Length(3.0, LengthUnit.FEET);
+        Length sum = a.add(b, LengthUnit.FEET);
+        assertEquals(9.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.FEET, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_Commutativity() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum1 = a.add(b, LengthUnit.YARDS);
+        Length sum2 = b.add(a, LengthUnit.YARDS);
+        assertEquals(sum1.getValue(), sum2.getValue(), EPS);
+        assertEquals(sum1.getUnit(), sum2.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_WithZero() {
+        Length a = new Length(5.0, LengthUnit.FEET);
+        Length b = new Length(0.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.YARDS);
+        assertEquals(1.667, sum.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_NegativeValues() {
+        Length a = new Length(5.0, LengthUnit.FEET);
+        Length b = new Length(-2.0, LengthUnit.FEET);
+        Length sum = a.add(b, LengthUnit.INCHES);
+        assertEquals(36.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.INCHES, sum.getUnit());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddition_ExplicitTargetUnit_NullTargetUnit() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        a.add(b, null);
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_LargeToSmallScale() {
+        Length a = new Length(1000.0, LengthUnit.FEET);
+        Length b = new Length(500.0, LengthUnit.FEET);
+        Length sum = a.add(b, LengthUnit.INCHES);
+        assertEquals(18000.0, sum.getValue(), EPS);
+        assertEquals(LengthUnit.INCHES, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_SmallToLargeScale() {
+        Length a = new Length(12.0, LengthUnit.INCHES);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum = a.add(b, LengthUnit.YARDS);
+        assertEquals(0.667, sum.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, sum.getUnit());
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_AllUnitCombinations() {
+        Length[] operands1 = {
+                new Length(1.0, LengthUnit.FEET),
+                new Length(12.0, LengthUnit.INCHES),
+                new Length(1.0, LengthUnit.YARDS),
+                new Length(30.48, LengthUnit.CENTIMETERS)
+        };
+        Length[] operands2 = {
+                new Length(2.0, LengthUnit.FEET),
+                new Length(24.0, LengthUnit.INCHES),
+                new Length(2.0, LengthUnit.YARDS),
+                new Length(60.96, LengthUnit.CENTIMETERS)
+        };
+        LengthUnit[] targetUnits = LengthUnit.values();
+
+        for (Length op1 : operands1) {
+            for (Length op2 : operands2) {
+                for (LengthUnit target : targetUnits) {
+                    Length sum = op1.add(op2, target);
+                    assertEquals(target, sum.getUnit());
+
+                    double baseSum = op1.getValue() * op1.getUnit().getConversionFactor() +
+                            op2.getValue() * op2.getUnit().getConversionFactor();
+                    double expectedTargetValue = baseSum / target.getConversionFactor();
+                    assertEquals(expectedTargetValue, sum.getValue(), 1e-2);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testAddition_ExplicitTargetUnit_PrecisionTolerance() {
+        Length a = new Length(1.0, LengthUnit.FEET);
+        Length b = new Length(12.0, LengthUnit.INCHES);
+        Length sum1 = a.add(b, LengthUnit.YARDS);
+
+        Length c = new Length(36.0, LengthUnit.INCHES);
+        Length d = new Length(36.0, LengthUnit.INCHES);
+        Length sum2 = c.add(d, LengthUnit.YARDS);
+
+        assertEquals(sum1.getValue() * 3, sum2.getValue(), EPS);
+    }
+
 }
