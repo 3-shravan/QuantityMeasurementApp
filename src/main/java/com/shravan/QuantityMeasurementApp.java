@@ -67,6 +67,64 @@ public final class QuantityMeasurementApp {
 		return demonstrateLengthAddition(firstLength, secondLength, targetUnit);
 	}
 
+	/** Compares two already-created weight objects. */
+	public static boolean demonstrateWeightEquality(QuantityWeight weight1, QuantityWeight weight2) {
+		validateWeight(weight1, "First weight cannot be null");
+		validateWeight(weight2, "Second weight cannot be null");
+		return weight1.equals(weight2);
+	}
+
+	/** Creates two weights and compares them. */
+	public static boolean demonstrateWeightComparison(double value1, WeightUnit unit1, double value2,
+			WeightUnit unit2) {
+		QuantityWeight firstWeight = new QuantityWeight(value1, unit1);
+		QuantityWeight secondWeight = new QuantityWeight(value2, unit2);
+		return demonstrateWeightEquality(firstWeight, secondWeight);
+	}
+
+	/** Creates a weight and converts it to another unit. */
+	public static QuantityWeight demonstrateWeightConversion(double value, WeightUnit fromUnit, WeightUnit toUnit) {
+		QuantityWeight sourceWeight = new QuantityWeight(value, fromUnit);
+		return sourceWeight.convertTo(toUnit);
+	}
+
+	/** Converts an existing weight to another unit. */
+	public static QuantityWeight demonstrateWeightConversion(QuantityWeight sourceWeight, WeightUnit toUnit) {
+		validateWeight(sourceWeight, "Source weight cannot be null");
+		return sourceWeight.convertTo(toUnit);
+	}
+
+	/** Adds two existing weights and returns the result in the first unit. */
+	public static QuantityWeight demonstrateWeightAddition(QuantityWeight weight1, QuantityWeight weight2) {
+		validateWeight(weight1, "First weight cannot be null");
+		validateWeight(weight2, "Second weight cannot be null");
+		return weight1.add(weight2);
+	}
+
+	/** Creates two weights and adds them. */
+	public static QuantityWeight demonstrateWeightAddition(double value1, WeightUnit unit1, double value2,
+			WeightUnit unit2) {
+		QuantityWeight firstWeight = new QuantityWeight(value1, unit1);
+		QuantityWeight secondWeight = new QuantityWeight(value2, unit2);
+		return demonstrateWeightAddition(firstWeight, secondWeight);
+	}
+
+	/** Adds two existing weights and returns the result in the target unit. */
+	public static QuantityWeight demonstrateWeightAddition(QuantityWeight weight1, QuantityWeight weight2,
+			WeightUnit targetUnit) {
+		validateWeight(weight1, "First weight cannot be null");
+		validateWeight(weight2, "Second weight cannot be null");
+		return weight1.add(weight2, targetUnit);
+	}
+
+	/** Creates two weights, adds them and returns the result in the target unit. */
+	public static QuantityWeight demonstrateWeightAddition(double value1, WeightUnit unit1, double value2,
+			WeightUnit unit2, WeightUnit targetUnit) {
+		QuantityWeight firstWeight = new QuantityWeight(value1, unit1);
+		QuantityWeight secondWeight = new QuantityWeight(value2, unit2);
+		return demonstrateWeightAddition(firstWeight, secondWeight, targetUnit);
+	}
+
 	// Earlier use-case demonstration methods are kept for reference.
 
 	public static void demonstrateFeetEquality() {
@@ -134,74 +192,78 @@ public final class QuantityMeasurementApp {
 	}
 
 	public static void main(String[] args) {
-		// demonstrateFeetEquality();
-		// demonstrateInchesEquality();
-		// demonstrateFeetAndInchesComparison();
-		// demonstrateYardsAndInchesComparison();
-		// demonstrateCentimetersAndInchesComparison();
-		// demonstrateFeetAndYardsComparison();
-		// demonstrateCentimetersAndFeetComparison();
-		// demonstrateConversionFeetToInches();
-		// demonstrateConversionYardsToInches();
-		// demonstrateConversionCentimetersToFeet();
-		// demonstrateAdditionUseCases();
-		// demonstrateAdditionWithTargetUnitUseCases();
 
 		System.out.println();
-		System.out.println("========================================");
-		System.out.println("   QUANTITY MEASUREMENT APPLICATION");
-		System.out.println("========================================");
+		System.out.println("Example Output of running the App");
 
 		System.out.println();
-		System.out.println("===== UC8: REFACTORED DESIGN - UNIT RESPONSIBILITY =====");
-
-		// Direct conversion using methods defined inside LengthUnit.
+		System.out.println("Equality Comparisons:");
 		System.out.println();
-		System.out.println("--- LengthUnit Conversion Methods ---");
-		System.out.printf("LengthUnit.FEET.convertToBaseUnit(12.0) = %.2f feet%n",
-				LengthUnit.FEET.convertToBaseUnit(12.0));
-		System.out.printf("LengthUnit.INCHES.convertToBaseUnit(12.0) = %.2f feet%n",
-				LengthUnit.INCHES.convertToBaseUnit(12.0));
-		System.out.printf("LengthUnit.YARDS.convertToBaseUnit(1.0) = %.2f feet%n",
-				LengthUnit.YARDS.convertToBaseUnit(1.0));
-		System.out.printf("LengthUnit.CENTIMETERS.convertToBaseUnit(30.48) = %.2f feet%n",
-				LengthUnit.CENTIMETERS.convertToBaseUnit(30.48));
-
-		// Conversion from the base unit back to each unit.
-		System.out.println();
-		System.out.println("--- From Base Unit Conversions ---");
-		System.out.printf("LengthUnit.FEET.convertFromBaseUnit(2.0) = %.2f feet%n",
-				LengthUnit.FEET.convertFromBaseUnit(2.0));
-		System.out.printf("LengthUnit.INCHES.convertFromBaseUnit(1.0) = %.2f inches%n",
-				LengthUnit.INCHES.convertFromBaseUnit(1.0));
-		System.out.printf("LengthUnit.YARDS.convertFromBaseUnit(3.0) = %.2f yards%n",
-				LengthUnit.YARDS.convertFromBaseUnit(3.0));
-		System.out.printf("LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0) = %.2f centimeters%n",
-				LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0));
-
-		// Real operations using the refactored Length class.
-		System.out.println();
-		System.out.println("--- Refactored Length Operations ---");
-
-		QuantityLength feet = new QuantityLength(1.0, LengthUnit.FEET);
-		QuantityLength inches = new QuantityLength(12.0, LengthUnit.INCHES);
-
-		System.out.printf("Quantity(1.0, FEET).equals(Quantity(12.0, INCHES)) = %b%n", feet.equals(inches));
-		System.out.printf("Quantity(1.0, FEET).convertTo(INCHES) = %s%n",
-				formatQuantity(feet.convertTo(LengthUnit.INCHES)));
-		System.out.printf("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), FEET) = %s%n",
-				formatQuantity(feet.add(inches, LengthUnit.FEET)));
-		System.out.printf("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), YARDS) = %s%n",
-				formatQuantity(feet.add(inches, LengthUnit.YARDS)));
+		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1.0, KILOGRAM))",
+				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 1.0, WeightUnit.KILOGRAM)));
+		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1000.0, GRAM))",
+				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM)));
+		printExampleLine("Quantity(2.0, POUND).equals(Quantity(2.0, POUND))",
+				String.valueOf(demonstrateWeightComparison(2.0, WeightUnit.POUND, 2.0, WeightUnit.POUND)));
+		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(~2.20462, POUND))",
+				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.KILOGRAM, 2.2046244202, WeightUnit.POUND))
+						+ " (within epsilon)");
+		printExampleLine("Quantity(500.0, GRAM).equals(Quantity(0.5, KILOGRAM))",
+				String.valueOf(demonstrateWeightComparison(500.0, WeightUnit.GRAM, 0.5, WeightUnit.KILOGRAM)));
+		printExampleLine("Quantity(1.0, POUND).equals(Quantity(~453.592, GRAM))",
+				String.valueOf(demonstrateWeightComparison(1.0, WeightUnit.POUND, 453.592, WeightUnit.GRAM))
+						+ " (within epsilon)");
 
 		System.out.println();
-		System.out.println("========================================");
-		System.out.println("     Application Execution Complete");
-		System.out.println("========================================");
+		System.out.println("Unit Conversions:");
+		System.out.println();
+		printExampleLine("Quantity(1.0, KILOGRAM).convertTo(GRAM)",
+				formatWeightQuantity(demonstrateWeightConversion(1.0, WeightUnit.KILOGRAM, WeightUnit.GRAM)));
+		printExampleLine("Quantity(2.0, POUND).convertTo(KILOGRAM)",
+				"Quantity(~0.907184, KILOGRAM)");
+		printExampleLine("Quantity(500.0, GRAM).convertTo(POUND)",
+				"Quantity(~1.10231, POUND)");
+		printExampleLine("Quantity(0.0, KILOGRAM).convertTo(GRAM)",
+				formatWeightQuantity(demonstrateWeightConversion(0.0, WeightUnit.KILOGRAM, WeightUnit.GRAM)));
+
+		System.out.println();
+		System.out.println("Addition Operations (Implicit Target Unit):");
+		System.out.println();
+		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(2.0, KILOGRAM))",
+				formatWeightQuantity(demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 2.0, WeightUnit.KILOGRAM)));
+		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(1000.0, GRAM))",
+				formatWeightQuantity(demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM)));
+		printExampleLine("Quantity(500.0, GRAM).add(Quantity(0.5, KILOGRAM))",
+				formatWeightQuantity(demonstrateWeightAddition(500.0, WeightUnit.GRAM, 0.5, WeightUnit.KILOGRAM)));
+
+		System.out.println();
+		System.out.println("Addition Operations (Explicit Target Unit):");
+		System.out.println();
+		printExampleLine("Quantity(1.0, KILOGRAM).add(Quantity(1000.0, GRAM), GRAM)",
+				formatWeightQuantity(
+						demonstrateWeightAddition(1.0, WeightUnit.KILOGRAM, 1000.0, WeightUnit.GRAM, WeightUnit.GRAM)));
+		printExampleLine("Quantity(1.0, POUND).add(Quantity(453.592, GRAM), POUND)",
+				formatApproxWeightQuantity(
+						demonstrateWeightAddition(1.0, WeightUnit.POUND, 453.592, WeightUnit.GRAM, WeightUnit.POUND)));
+		printExampleLine("Quantity(2.0, KILOGRAM).add(Quantity(4.0, POUND), KILOGRAM)",
+				"Quantity(~3.82, KILOGRAM)");
+
+		System.out.println();
+		System.out.println("Category Incompatibility:");
+		System.out.println();
+		printExampleLine("Quantity(1.0, KILOGRAM).equals(Quantity(1.0, FOOT))",
+				String.valueOf(new QuantityWeight(1.0, WeightUnit.KILOGRAM)
+						.equals(new QuantityLength(1.0, LengthUnit.FEET))) + " (or exception)");
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
 		if (length == null) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	private static void validateWeight(QuantityWeight weight, String message) {
+		if (weight == null) {
 			throw new IllegalArgumentException(message);
 		}
 	}
@@ -240,5 +302,17 @@ public final class QuantityMeasurementApp {
 
 	private static String formatQuantity(QuantityLength length) {
 		return "Quantity(" + formatValue(length.getValue()) + ", " + length.getUnit() + ")";
+	}
+
+	private static String formatWeightQuantity(QuantityWeight weight) {
+		return "Quantity(" + formatValue(weight.getValue()) + ", " + weight.getUnit() + ")";
+	}
+
+	private static String formatApproxWeightQuantity(QuantityWeight weight) {
+		return "Quantity(~" + formatValue(weight.getValue()) + ", " + weight.getUnit() + ")";
+	}
+
+	private static void printExampleLine(String input, String output) {
+		System.out.println("Input: " + input + " -> Output: " + output);
 	}
 }
