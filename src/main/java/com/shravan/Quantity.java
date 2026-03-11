@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public final class Quantity<U extends IMeasurable> {
 
-  private static final int OUTPUT_SCALE = 2;
+  private static final int OUTPUT_SCALE = 6;
   private static final int BASE_COMPARISON_SCALE = 4;
 
   private final double value;
@@ -30,12 +30,12 @@ public final class Quantity<U extends IMeasurable> {
   }
 
   public boolean compare(Quantity<U> other) {
-    Objects.requireNonNull(other, "Quantity to compare cannot be null");
+    validateCompatibleQuantity(other, "Quantity to compare cannot be null");
     return normalizedBaseValue() == other.normalizedBaseValue();
   }
 
   public Quantity<U> convertTo(U targetUnit) {
-    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
+    validateCompatibleUnit(targetUnit, "Target unit cannot be null");
     double convertedValue = targetUnit.convertFromBaseUnit(toBaseUnit());
     return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
   }
@@ -45,12 +45,36 @@ public final class Quantity<U extends IMeasurable> {
   }
 
   public Quantity<U> add(Quantity<U> other, U targetUnit) {
-    Objects.requireNonNull(other, "Quantity to add cannot be null");
-    Objects.requireNonNull(targetUnit, "Target unit cannot be null");
+    validateCompatibleQuantity(other, "Quantity to add cannot be null");
+    validateCompatibleUnit(targetUnit, "Target unit cannot be null");
 
     double sumInBaseUnit = toBaseUnit() + other.toBaseUnit();
     double convertedValue = targetUnit.convertFromBaseUnit(sumInBaseUnit);
     return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
+  }
+
+  public Quantity<U> subtract(Quantity<U> other) {
+    return subtract(other, unit);
+  }
+
+  public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+    validateCompatibleQuantity(other, "Quantity to subtract cannot be null");
+    validateCompatibleUnit(targetUnit, "Target unit cannot be null");
+
+    double differenceInBaseUnit = toBaseUnit() - other.toBaseUnit();
+    double convertedValue = targetUnit.convertFromBaseUnit(differenceInBaseUnit);
+    return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
+  }
+
+  public double divide(Quantity<U> other) {
+    validateCompatibleQuantity(other, "Quantity to divide cannot be null");
+
+    double divisorInBaseUnit = other.toBaseUnit();
+    if (Double.compare(divisorInBaseUnit, 0.0) == 0) {
+      throw new ArithmeticException("Cannot divide by zero quantity");
+    }
+
+    return round(toBaseUnit() / divisorInBaseUnit, OUTPUT_SCALE);
   }
 
   public static <U extends IMeasurable> Quantity<U> add(double firstValue, U firstUnit,
@@ -58,8 +82,18 @@ public final class Quantity<U extends IMeasurable> {
     return new Quantity<>(firstValue, firstUnit).add(new Quantity<>(secondValue, secondUnit), targetUnit);
   }
 
+  public static <U extends IMeasurable> Quantity<U> subtract(double firstValue, U firstUnit,
+      double secondValue, U secondUnit, U targetUnit) {
+    return new Quantity<>(firstValue, firstUnit).subtract(new Quantity<>(secondValue, secondUnit), targetUnit);
+  }
+
   public static <U extends IMeasurable> double convert(double value, U sourceUnit, U targetUnit) {
     return new Quantity<>(value, sourceUnit).convertTo(targetUnit).getValue();
+  }
+
+  public static <U extends IMeasurable> double divide(double firstValue, U firstUnit,
+      double secondValue, U secondUnit) {
+    return new Quantity<>(firstValue, firstUnit).divide(new Quantity<>(secondValue, secondUnit));
   }
 
   @Override
@@ -95,6 +129,24 @@ public final class Quantity<U extends IMeasurable> {
 
   private double normalizedBaseValue() {
     return round(toBaseUnit(), BASE_COMPARISON_SCALE);
+  }
+
+  private void validateCompatibleQuantity(Quantity<?> other, String nullMessage) {
+    if (other == null) {
+      throw new IllegalArgumentException(nullMessage);
+    }
+    if (unit.getClass() != other.unit.getClass()) {
+      throw new IllegalArgumentException("Quantities must belong to the same measurement category");
+    }
+  }
+
+  private void validateCompatibleUnit(IMeasurable targetUnit, String nullMessage) {
+    if (targetUnit == null) {
+      throw new IllegalArgumentException(nullMessage);
+    }
+    if (unit.getClass() != targetUnit.getClass()) {
+      throw new IllegalArgumentException("Target unit must belong to the same measurement category");
+    }
   }
 
   private static double round(double value, int scale) {

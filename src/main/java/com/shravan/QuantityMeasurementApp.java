@@ -54,6 +54,40 @@ public final class QuantityMeasurementApp {
 		return demonstrateAddition(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2), targetUnit);
 	}
 
+	public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> first, Quantity<U> second) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.subtract(second);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(double value1, U unit1, double value2,
+			U unit2) {
+		return demonstrateSubtraction(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2));
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(Quantity<U> first, Quantity<U> second,
+			U targetUnit) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.subtract(second, targetUnit);
+	}
+
+	public static <U extends IMeasurable> Quantity<U> demonstrateSubtraction(double value1, U unit1, double value2,
+			U unit2, U targetUnit) {
+		return demonstrateSubtraction(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2), targetUnit);
+	}
+
+	public static <U extends IMeasurable> double demonstrateDivision(Quantity<U> first, Quantity<U> second) {
+		validateGenericQuantity(first, "First quantity cannot be null");
+		validateGenericQuantity(second, "Second quantity cannot be null");
+		return first.divide(second);
+	}
+
+	public static <U extends IMeasurable> double demonstrateDivision(double value1, U unit1, double value2,
+			U unit2) {
+		return demonstrateDivision(new Quantity<>(value1, unit1), new Quantity<>(value2, unit2));
+	}
+
 	/** Compares two already-created length objects. */
 	public static boolean demonstrateLengthEquality(QuantityLength length1, QuantityLength length2) {
 		validateLength(length1, "First length cannot be null");
@@ -237,49 +271,95 @@ public final class QuantityMeasurementApp {
 	}
 
 	public static void main(String[] args) {
-		Quantity<LengthUnit> lengthInFeet = new Quantity<>(1.0, LengthUnit.FEET);
-		Quantity<LengthUnit> lengthInInches = new Quantity<>(12.0, LengthUnit.INCHES);
-		Quantity<WeightUnit> weightInKilogram = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-		Quantity<WeightUnit> weightInGram = new Quantity<>(1000.0, WeightUnit.GRAM);
-
 		System.out.println("Example Output of running the App");
 		System.out.println();
-		System.out.println("Length Operations (UC1–UC8 functionality preserved):");
+		System.out.println("Subtraction with Implicit Target Unit:");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(12.0, LengthUnit.INCHES))",
-				String.valueOf(demonstrateEquality(lengthInFeet, lengthInInches)));
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES)",
-				lengthInFeet.convertTo(LengthUnit.INCHES).toString());
-		printExampleLine(
-				"new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET)",
-				lengthInFeet.add(lengthInInches, LengthUnit.FEET).toString());
+		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(6.0, INCHES))",
+				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(6.0, LengthUnit.INCHES)).toString());
+		printExampleLine("new Quantity<>(10.0, KILOGRAM).subtract(new Quantity<>(5000.0, GRAM))",
+				new Quantity<>(10.0, WeightUnit.KILOGRAM).subtract(new Quantity<>(5000.0, WeightUnit.GRAM)).toString());
+		printExampleLine("new Quantity<>(5.0, LITRE).subtract(new Quantity<>(500.0, MILLILITRE))",
+				new Quantity<>(5.0, VolumeUnit.LITRE).subtract(new Quantity<>(500.0, VolumeUnit.MILLILITRE)).toString());
 
 		System.out.println();
-		System.out.println("Weight Operations (UC9 functionality preserved):");
+		System.out.println("Subtraction with Explicit Target Unit:");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).equals(new Quantity<>(1000.0, WeightUnit.GRAM))",
-				String.valueOf(demonstrateEquality(weightInKilogram, weightInGram)));
-		printExampleLine("new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM)",
-				weightInKilogram.convertTo(WeightUnit.GRAM).toString());
-		printExampleLine(
-				"new Quantity<>(1.0, WeightUnit.KILOGRAM).add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM)",
-				weightInKilogram.add(weightInGram, WeightUnit.KILOGRAM).toString());
+		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(6.0, INCHES), INCHES)",
+				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(6.0, LengthUnit.INCHES), LengthUnit.INCHES)
+						.toString());
+		printExampleLine("new Quantity<>(10.0, KILOGRAM).subtract(new Quantity<>(5000.0, GRAM), GRAM)",
+				new Quantity<>(10.0, WeightUnit.KILOGRAM)
+						.subtract(new Quantity<>(5000.0, WeightUnit.GRAM), WeightUnit.GRAM).toString());
+		printExampleLine("new Quantity<>(5.0, LITRE).subtract(new Quantity<>(2.0, LITRE), MILLILITRE)",
+				new Quantity<>(5.0, VolumeUnit.LITRE)
+						.subtract(new Quantity<>(2.0, VolumeUnit.LITRE), VolumeUnit.MILLILITRE).toString());
 
 		System.out.println();
-		System.out.println("Cross-Category Prevention:");
+		System.out.println("Subtraction Resulting in Negative Values:");
 		System.out.println();
-		printExampleLine("new Quantity<>(1.0, LengthUnit.FEET).equals(new Quantity<>(1.0, WeightUnit.KILOGRAM))",
-				String.valueOf(lengthInFeet.equals(weightInKilogram)));
-		printExampleLine("demonstrateEquality(Quantity<LengthUnit>, Quantity<WeightUnit>)",
-				"Compiler error (type mismatch)");
+		printExampleLine("new Quantity<>(5.0, FEET).subtract(new Quantity<>(10.0, FEET))",
+				new Quantity<>(5.0, LengthUnit.FEET).subtract(new Quantity<>(10.0, LengthUnit.FEET)).toString());
+		printExampleLine("new Quantity<>(2.0, KILOGRAM).subtract(new Quantity<>(5.0, KILOGRAM))",
+				new Quantity<>(2.0, WeightUnit.KILOGRAM).subtract(new Quantity<>(5.0, WeightUnit.KILOGRAM)).toString());
 
 		System.out.println();
-		System.out.println("Generic Demonstration Methods:");
+		System.out.println("Subtraction Resulting in Zero:");
 		System.out.println();
-		printExampleLine("demonstrateEquality(q1, q2) where both are Quantity<LengthUnit>",
-				demonstrateGenericHandling(lengthInFeet, lengthInInches));
-		printExampleLine("demonstrateEquality(w1, w2) where both are Quantity<WeightUnit>",
-				demonstrateGenericHandling(weightInKilogram, weightInGram));
+		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(120.0, INCHES))",
+				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(120.0, LengthUnit.INCHES)).toString());
+		printExampleLine("new Quantity<>(1.0, LITRE).subtract(new Quantity<>(1000.0, MILLILITRE))",
+				new Quantity<>(1.0, VolumeUnit.LITRE).subtract(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)).toString());
+
+		System.out.println();
+		System.out.println("Division Operations:");
+		System.out.println();
+		printExampleLine("new Quantity<>(10.0, FEET).divide(new Quantity<>(2.0, FEET))",
+				String.valueOf(new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(2.0, LengthUnit.FEET))));
+		printExampleLine("new Quantity<>(10.0, FEET).divide(new Quantity<>(5.0, FEET))",
+				String.valueOf(new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(5.0, LengthUnit.FEET))));
+		printExampleLine("new Quantity<>(24.0, INCHES).divide(new Quantity<>(2.0, FEET))",
+				String.valueOf(new Quantity<>(24.0, LengthUnit.INCHES).divide(new Quantity<>(2.0, LengthUnit.FEET))));
+		printExampleLine("new Quantity<>(10.0, KILOGRAM).divide(new Quantity<>(5.0, KILOGRAM))",
+				String.valueOf(new Quantity<>(10.0, WeightUnit.KILOGRAM).divide(new Quantity<>(5.0, WeightUnit.KILOGRAM))));
+		printExampleLine("new Quantity<>(5.0, LITRE).divide(new Quantity<>(10.0, LITRE))",
+				String.valueOf(new Quantity<>(5.0, VolumeUnit.LITRE).divide(new Quantity<>(10.0, VolumeUnit.LITRE))));
+
+		System.out.println();
+		System.out.println("Division with Different Units (Same Category):");
+		System.out.println();
+		printExampleLine("new Quantity<>(12.0, INCHES).divide(new Quantity<>(1.0, FEET))",
+				String.valueOf(new Quantity<>(12.0, LengthUnit.INCHES).divide(new Quantity<>(1.0, LengthUnit.FEET))));
+		printExampleLine("new Quantity<>(2000.0, GRAM).divide(new Quantity<>(1.0, KILOGRAM))",
+				String.valueOf(new Quantity<>(2000.0, WeightUnit.GRAM).divide(new Quantity<>(1.0, WeightUnit.KILOGRAM))));
+		printExampleLine("new Quantity<>(1000.0, MILLILITRE).divide(new Quantity<>(1.0, LITRE))",
+				String.valueOf(new Quantity<>(1000.0, VolumeUnit.MILLILITRE).divide(new Quantity<>(1.0, VolumeUnit.LITRE))));
+
+		System.out.println();
+		System.out.println("Error Cases:");
+		System.out.println();
+		printExceptionExample("new Quantity<>(10.0, FEET).subtract(null)", new Operation() {
+			@Override
+			public Object execute() {
+				return new Quantity<>(10.0, LengthUnit.FEET).subtract(null);
+			}
+		}, "");
+		printExceptionExample("new Quantity<>(10.0, FEET).divide(new Quantity<>(0.0, FEET))", new Operation() {
+			@Override
+			public Object execute() {
+				return new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(0.0, LengthUnit.FEET));
+			}
+		}, "");
+		printExceptionExample("new Quantity<>(10.0, FEET).subtract(new Quantity<>(5.0, KILOGRAM))",
+				new Operation() {
+					@Override
+					@SuppressWarnings({ "rawtypes", "unchecked" })
+					public Object execute() {
+						Quantity first = new Quantity<>(10.0, LengthUnit.FEET);
+						Quantity second = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+						return first.subtract(second);
+					}
+				}, " (cross-category)");
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
@@ -334,5 +414,18 @@ public final class QuantityMeasurementApp {
 
 	private static void printExampleLine(String input, String output) {
 		System.out.println("Input: " + input + " → Output: " + output);
+	}
+
+	private static void printExceptionExample(String input, Operation operation, String suffix) {
+		try {
+			operation.execute();
+			System.out.println("Input: " + input + " → Output: No exception thrown");
+		} catch (RuntimeException exception) {
+			System.out.println("Input: " + input + " → Output: Throws " + exception.getClass().getSimpleName() + suffix);
+		}
+	}
+
+	private interface Operation {
+		Object execute();
 	}
 }
