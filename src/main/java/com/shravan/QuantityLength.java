@@ -2,33 +2,33 @@ package com.shravan;
 
 import java.util.Objects;
 
-public final class Length {
+public final class QuantityLength {
 
   private static final double EPSILON = 1e-4;
 
   private final double value;
   private final LengthUnit unit;
 
-  public Length(double value, LengthUnit unit) {
+  public QuantityLength(double value, LengthUnit unit) {
     validateValue(value);
     this.unit = Objects.requireNonNull(unit, "Length unit cannot be null");
     this.value = value;
   }
 
-  public boolean compare(Length thatLength) {
+  public boolean compare(QuantityLength thatLength) {
     Objects.requireNonNull(thatLength, "Length to compare cannot be null");
     return Math.abs(this.toBaseUnit() - thatLength.toBaseUnit()) < EPSILON;
   }
 
-  public Length convertTo(LengthUnit targetUnit) {
-    return new Length(convert(this.value, this.unit, targetUnit), targetUnit);
+  public QuantityLength convertTo(LengthUnit targetUnit) {
+    return new QuantityLength(convert(this.value, this.unit, targetUnit), targetUnit);
   }
 
-  public Length add(Length thatLength) {
+  public QuantityLength add(QuantityLength thatLength) {
     return addInternal(thatLength, this.unit);
   }
 
-  public Length add(Length thatLength, LengthUnit targetUnit) {
+  public QuantityLength add(QuantityLength thatLength, LengthUnit targetUnit) {
     return addInternal(thatLength, targetUnit);
   }
 
@@ -36,13 +36,13 @@ public final class Length {
    * Convenience static add method: adds two raw values with units and returns
    * result in targetUnit.
    */
-  public static Length add(double value1, LengthUnit unit1, double value2,
+  public static QuantityLength add(double value1, LengthUnit unit1, double value2,
       LengthUnit unit2, LengthUnit targetUnit) {
     validateConversionInput(value1, unit1, targetUnit);
     validateConversionInput(value2, unit2, targetUnit);
 
     double sumInBaseUnit = unit1.convertToBaseUnit(value1) + unit2.convertToBaseUnit(value2);
-    return new Length(targetUnit.convertFromBaseUnit(sumInBaseUnit), targetUnit);
+    return new QuantityLength(targetUnit.convertFromBaseUnit(sumInBaseUnit), targetUnit);
   }
 
   public static double convert(double inputValue, LengthUnit sourceUnit,
@@ -67,7 +67,7 @@ public final class Length {
     if (other == null || getClass() != other.getClass()) {
       return false;
     }
-    return compare((Length) other);
+    return compare((QuantityLength) other);
   }
 
   @Override
@@ -80,12 +80,12 @@ public final class Length {
     return String.format("%.2f %s", value, unit);
   }
 
-  private Length addInternal(Length thatLength, LengthUnit targetUnit) {
+  private QuantityLength addInternal(QuantityLength thatLength, LengthUnit targetUnit) {
     Objects.requireNonNull(thatLength, "Operand length cannot be null");
     Objects.requireNonNull(targetUnit, "Target unit cannot be null");
 
     double sumInBaseUnit = this.toBaseUnit() + thatLength.toBaseUnit();
-    return new Length(targetUnit.convertFromBaseUnit(sumInBaseUnit), targetUnit);
+    return new QuantityLength(targetUnit.convertFromBaseUnit(sumInBaseUnit), targetUnit);
   }
 
   private double toBaseUnit() {

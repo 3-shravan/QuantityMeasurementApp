@@ -9,47 +9,65 @@ public final class QuantityMeasurementApp {
 	private QuantityMeasurementApp() {
 	}
 
-	public static boolean demonstrateLengthEquality(Length length1, Length length2) {
+	/** Compares two already-created length objects. */
+	public static boolean demonstrateLengthEquality(QuantityLength length1, QuantityLength length2) {
 		validateLength(length1, "First length cannot be null");
 		validateLength(length2, "Second length cannot be null");
 		return length1.equals(length2);
 	}
 
+	/** Creates two lengths and compares them. */
 	public static boolean demonstrateLengthComparison(double value1, LengthUnit unit1, double value2,
 			LengthUnit unit2) {
-		return demonstrateLengthEquality(createLength(value1, unit1), createLength(value2, unit2));
+		QuantityLength firstLength = new QuantityLength(value1, unit1);
+		QuantityLength secondLength = new QuantityLength(value2, unit2);
+		return demonstrateLengthEquality(firstLength, secondLength);
 	}
 
-	public static Length demonstrateLengthConversion(double value, LengthUnit fromUnit, LengthUnit toUnit) {
-		return createLength(value, fromUnit).convertTo(toUnit);
+	/** Creates a length and converts it to another unit. */
+	public static QuantityLength demonstrateLengthConversion(double value, LengthUnit fromUnit, LengthUnit toUnit) {
+		QuantityLength sourceLength = new QuantityLength(value, fromUnit);
+		return sourceLength.convertTo(toUnit);
 	}
 
-	public static Length demonstrateLengthConversion(Length sourceLength, LengthUnit toUnit) {
+	/** Converts an existing length to another unit. */
+	public static QuantityLength demonstrateLengthConversion(QuantityLength sourceLength, LengthUnit toUnit) {
 		validateLength(sourceLength, "Source length cannot be null");
 		return sourceLength.convertTo(toUnit);
 	}
 
-	public static Length demonstrateLengthAddition(Length length1, Length length2) {
+	/** Adds two existing lengths and returns the result in the first unit. */
+	public static QuantityLength demonstrateLengthAddition(QuantityLength length1, QuantityLength length2) {
 		validateLength(length1, "First length cannot be null");
 		validateLength(length2, "Second length cannot be null");
 		return length1.add(length2);
 	}
 
-	public static Length demonstrateLengthAddition(double value1, LengthUnit unit1, double value2,
+	/** Creates two lengths and adds them. */
+	public static QuantityLength demonstrateLengthAddition(double value1, LengthUnit unit1, double value2,
 			LengthUnit unit2) {
-		return demonstrateLengthAddition(createLength(value1, unit1), createLength(value2, unit2));
+		QuantityLength firstLength = new QuantityLength(value1, unit1);
+		QuantityLength secondLength = new QuantityLength(value2, unit2);
+		return demonstrateLengthAddition(firstLength, secondLength);
 	}
 
-	public static Length demonstrateLengthAddition(Length length1, Length length2, LengthUnit targetUnit) {
+	/** Adds two existing lengths and returns the result in the target unit. */
+	public static QuantityLength demonstrateLengthAddition(QuantityLength length1, QuantityLength length2,
+			LengthUnit targetUnit) {
 		validateLength(length1, "First length cannot be null");
 		validateLength(length2, "Second length cannot be null");
 		return length1.add(length2, targetUnit);
 	}
 
-	public static Length demonstrateLengthAddition(double value1, LengthUnit unit1, double value2,
+	/** Creates two lengths, adds them and returns the result in the target unit. */
+	public static QuantityLength demonstrateLengthAddition(double value1, LengthUnit unit1, double value2,
 			LengthUnit unit2, LengthUnit targetUnit) {
-		return demonstrateLengthAddition(createLength(value1, unit1), createLength(value2, unit2), targetUnit);
+		QuantityLength firstLength = new QuantityLength(value1, unit1);
+		QuantityLength secondLength = new QuantityLength(value2, unit2);
+		return demonstrateLengthAddition(firstLength, secondLength, targetUnit);
 	}
+
+	// Earlier use-case demonstration methods are kept for reference.
 
 	public static void demonstrateFeetEquality() {
 		printComparisonDemo("Feet equality", 1.0, LengthUnit.FEET, 1.0, LengthUnit.FEET);
@@ -116,16 +134,73 @@ public final class QuantityMeasurementApp {
 	}
 
 	public static void main(String[] args) {
-		printLengthUnitConversions();
-		printFromBaseUnitConversions();
-		printRefactoredLengthOperations();
+		// demonstrateFeetEquality();
+		// demonstrateInchesEquality();
+		// demonstrateFeetAndInchesComparison();
+		// demonstrateYardsAndInchesComparison();
+		// demonstrateCentimetersAndInchesComparison();
+		// demonstrateFeetAndYardsComparison();
+		// demonstrateCentimetersAndFeetComparison();
+		// demonstrateConversionFeetToInches();
+		// demonstrateConversionYardsToInches();
+		// demonstrateConversionCentimetersToFeet();
+		// demonstrateAdditionUseCases();
+		// demonstrateAdditionWithTargetUnitUseCases();
+
+		System.out.println();
+		System.out.println("========================================");
+		System.out.println("   QUANTITY MEASUREMENT APPLICATION");
+		System.out.println("========================================");
+
+		System.out.println();
+		System.out.println("===== UC8: REFACTORED DESIGN - UNIT RESPONSIBILITY =====");
+
+		// Direct conversion using methods defined inside LengthUnit.
+		System.out.println();
+		System.out.println("--- LengthUnit Conversion Methods ---");
+		System.out.printf("LengthUnit.FEET.convertToBaseUnit(12.0) = %.2f feet%n",
+				LengthUnit.FEET.convertToBaseUnit(12.0));
+		System.out.printf("LengthUnit.INCHES.convertToBaseUnit(12.0) = %.2f feet%n",
+				LengthUnit.INCHES.convertToBaseUnit(12.0));
+		System.out.printf("LengthUnit.YARDS.convertToBaseUnit(1.0) = %.2f feet%n",
+				LengthUnit.YARDS.convertToBaseUnit(1.0));
+		System.out.printf("LengthUnit.CENTIMETERS.convertToBaseUnit(30.48) = %.2f feet%n",
+				LengthUnit.CENTIMETERS.convertToBaseUnit(30.48));
+
+		// Conversion from the base unit back to each unit.
+		System.out.println();
+		System.out.println("--- From Base Unit Conversions ---");
+		System.out.printf("LengthUnit.FEET.convertFromBaseUnit(2.0) = %.2f feet%n",
+				LengthUnit.FEET.convertFromBaseUnit(2.0));
+		System.out.printf("LengthUnit.INCHES.convertFromBaseUnit(1.0) = %.2f inches%n",
+				LengthUnit.INCHES.convertFromBaseUnit(1.0));
+		System.out.printf("LengthUnit.YARDS.convertFromBaseUnit(3.0) = %.2f yards%n",
+				LengthUnit.YARDS.convertFromBaseUnit(3.0));
+		System.out.printf("LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0) = %.2f centimeters%n",
+				LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0));
+
+		// Real operations using the refactored Length class.
+		System.out.println();
+		System.out.println("--- Refactored Length Operations ---");
+
+		QuantityLength feet = new QuantityLength(1.0, LengthUnit.FEET);
+		QuantityLength inches = new QuantityLength(12.0, LengthUnit.INCHES);
+
+		System.out.printf("Quantity(1.0, FEET).equals(Quantity(12.0, INCHES)) = %b%n", feet.equals(inches));
+		System.out.printf("Quantity(1.0, FEET).convertTo(INCHES) = %s%n",
+				formatQuantity(feet.convertTo(LengthUnit.INCHES)));
+		System.out.printf("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), FEET) = %s%n",
+				formatQuantity(feet.add(inches, LengthUnit.FEET)));
+		System.out.printf("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), YARDS) = %s%n",
+				formatQuantity(feet.add(inches, LengthUnit.YARDS)));
+
+		System.out.println();
+		System.out.println("========================================");
+		System.out.println("     Application Execution Complete");
+		System.out.println("========================================");
 	}
 
-	private static Length createLength(double value, LengthUnit unit) {
-		return new Length(value, unit);
-	}
-
-	private static void validateLength(Length length, String message) {
+	private static void validateLength(QuantityLength length, String message) {
 		if (length == null) {
 			throw new IllegalArgumentException(message);
 		}
@@ -139,13 +214,13 @@ public final class QuantityMeasurementApp {
 	}
 
 	private static void printConversionDemo(String title, double value, LengthUnit fromUnit, LengthUnit toUnit) {
-		Length converted = demonstrateLengthConversion(value, fromUnit, toUnit);
+		QuantityLength converted = demonstrateLengthConversion(value, fromUnit, toUnit);
 		System.out.println(title + " -> Quantity(" + value + ", " + fromUnit + ") to " + toUnit + " = "
 				+ converted);
 	}
 
 	private static void printAdditionDemo(double value1, LengthUnit unit1, double value2, LengthUnit unit2) {
-		Length result = demonstrateLengthAddition(value1, unit1, value2, unit2);
+		QuantityLength result = demonstrateLengthAddition(value1, unit1, value2, unit2);
 		System.out.println("Input: add(Quantity(" + value1 + ", " + unit1 + "), Quantity(" + value2 + ", " + unit2
 				+ "))");
 		System.out.println("Output: " + formatQuantity(result));
@@ -153,7 +228,7 @@ public final class QuantityMeasurementApp {
 
 	private static void printAdditionDemo(double value1, LengthUnit unit1, double value2, LengthUnit unit2,
 			LengthUnit targetUnit) {
-		Length result = demonstrateLengthAddition(value1, unit1, value2, unit2, targetUnit);
+		QuantityLength result = demonstrateLengthAddition(value1, unit1, value2, unit2, targetUnit);
 		System.out.println("Input: add(Quantity(" + value1 + ", " + unit1 + "), Quantity(" + value2 + ", " + unit2
 				+ "), " + targetUnit + ")");
 		System.out.println("Output: " + formatQuantity(result));
@@ -163,59 +238,7 @@ public final class QuantityMeasurementApp {
 		return VALUE_FORMAT.format(value);
 	}
 
-	private static String formatQuantity(Length length) {
+	private static String formatQuantity(QuantityLength length) {
 		return "Quantity(" + formatValue(length.getValue()) + ", " + length.getUnit() + ")";
 	}
-
-	private static void printSection(String title) {
-		System.out.println();
-		System.out.println("--- " + title + " ---");
-	}
-
-	private static void printBaseUnitConversion(String unitName, double inputValue, LengthUnit unit,
-			String resultUnitName) {
-		System.out.printf("LengthUnit.%s.convertToBaseUnit(%.2f) = %.2f %s%n", unitName, inputValue,
-				unit.convertToBaseUnit(inputValue), resultUnitName);
-	}
-
-	private static void printFromBaseUnitConversion(String unitName, double inputValue, LengthUnit unit,
-			String resultUnitName) {
-		System.out.printf("LengthUnit.%s.convertFromBaseUnit(%.2f) = %.2f %s%n", unitName, inputValue,
-				unit.convertFromBaseUnit(inputValue), resultUnitName);
-	}
-
-	private static void printQuantityOperation(String description, Object result) {
-		System.out.printf("%s = %s%n", description, result);
-	}
-
-	private static void printLengthUnitConversions() {
-		printSection("LengthUnit Conversion Methods");
-		printBaseUnitConversion("FEET", 12.0, LengthUnit.FEET, "feet");
-		printBaseUnitConversion("INCHES", 12.0, LengthUnit.INCHES, "feet");
-		printBaseUnitConversion("YARDS", 1.0, LengthUnit.YARDS, "feet");
-		printBaseUnitConversion("CENTIMETERS", 30.48, LengthUnit.CENTIMETERS, "feet");
-	}
-
-	private static void printFromBaseUnitConversions() {
-		printSection("From Base Unit Conversions");
-		printFromBaseUnitConversion("FEET", 2.0, LengthUnit.FEET, "feet");
-		printFromBaseUnitConversion("INCHES", 1.0, LengthUnit.INCHES, "inches");
-		printFromBaseUnitConversion("YARDS", 3.0, LengthUnit.YARDS, "yards");
-		printFromBaseUnitConversion("CENTIMETERS", 1.0, LengthUnit.CENTIMETERS, "centimeters");
-	}
-
-	private static void printRefactoredLengthOperations() {
-		printSection("Refactored Length Operations");
-
-		Length feet = createLength(1.0, LengthUnit.FEET);
-		Length inches = createLength(12.0, LengthUnit.INCHES);
-
-		printQuantityOperation("Quantity(1.0, FEET).equals(Quantity(12.0, INCHES))", feet.equals(inches));
-		printQuantityOperation("Quantity(1.0, FEET).convertTo(INCHES)", formatQuantity(feet.convertTo(LengthUnit.INCHES)));
-		printQuantityOperation("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), FEET)",
-				formatQuantity(feet.add(inches, LengthUnit.FEET)));
-		printQuantityOperation("Quantity(1.0, FEET).add(Quantity(12.0, INCHES), YARDS)",
-				formatQuantity(feet.add(inches, LengthUnit.YARDS)));
-	}
-
 }
