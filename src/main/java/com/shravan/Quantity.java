@@ -127,6 +127,8 @@ public final class Quantity<U extends IMeasurable> {
       String nullOperandMessage) {
     boolean targetUnitRequired = operation != ArithmeticOperation.DIVIDE;
     validateArithmeticOperands(other, targetUnit, targetUnitRequired, nullOperandMessage);
+    unit.validateOperationSupport(operation.name());
+    other.unit.validateOperationSupport(operation.name());
     double thisBaseValue = toBaseUnit();
     double otherBaseValue = other.toBaseUnit();
     return operation.compute(thisBaseValue, otherBaseValue);

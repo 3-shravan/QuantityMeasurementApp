@@ -7,9 +7,11 @@ public enum LengthUnit implements IMeasurable {
   CENTIMETERS(1.0 / 30.48);
 
   private final double conversionFactor;
+  private final SupportsArithmetic supportsArithmetic;
 
   LengthUnit(double conversionFactor) {
     this.conversionFactor = conversionFactor;
+    this.supportsArithmetic = () -> true;
   }
 
   public double getConversionFactor() {
@@ -19,5 +21,10 @@ public enum LengthUnit implements IMeasurable {
   @Override
   public String getUnitName() {
     return name();
+  }
+
+  @Override
+  public SupportsArithmetic getSupportsArithmetic() {
+    return supportsArithmetic;
   }
 }

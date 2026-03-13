@@ -6,9 +6,11 @@ public enum WeightUnit implements IMeasurable {
   POUND(0.453592);
 
   private final double conversionFactor;
+  private final SupportsArithmetic supportsArithmetic;
 
   WeightUnit(double conversionFactor) {
     this.conversionFactor = conversionFactor;
+    this.supportsArithmetic = () -> true;
   }
 
   public double getConversionFactor() {
@@ -18,5 +20,10 @@ public enum WeightUnit implements IMeasurable {
   @Override
   public String getUnitName() {
     return name();
+  }
+
+  @Override
+  public SupportsArithmetic getSupportsArithmetic() {
+    return supportsArithmetic;
   }
 }

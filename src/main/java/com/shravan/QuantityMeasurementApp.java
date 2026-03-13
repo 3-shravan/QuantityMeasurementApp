@@ -340,6 +340,79 @@ public final class QuantityMeasurementApp {
 		System.out.println("Convert result to FEET");
 		System.out.println("  ↓");
 		System.out.println("Return new Quantity<>(..., FEET)");
+
+		System.out.println();
+		System.out.println("Temperature Equality Comparisons:");
+		System.out.println();
+		printExampleLine("new Quantity<>(0.0, CELSIUS).equals(new Quantity<>(32.0, FAHRENHEIT))",
+				String.valueOf(new Quantity<>(0.0, TemperatureUnit.CELSIUS)
+						.equals(new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT))));
+		printExampleLine("new Quantity<>(273.15, KELVIN).equals(new Quantity<>(0.0, CELSIUS))",
+				String.valueOf(new Quantity<>(273.15, TemperatureUnit.KELVIN)
+						.equals(new Quantity<>(0.0, TemperatureUnit.CELSIUS))));
+		printExampleLine("new Quantity<>(212.0, FAHRENHEIT).equals(new Quantity<>(100.0, CELSIUS))",
+				String.valueOf(new Quantity<>(212.0, TemperatureUnit.FAHRENHEIT)
+						.equals(new Quantity<>(100.0, TemperatureUnit.CELSIUS))));
+		printExampleLine("new Quantity<>(100.0, CELSIUS).equals(new Quantity<>(373.15, KELVIN))",
+				String.valueOf(new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+						.equals(new Quantity<>(373.15, TemperatureUnit.KELVIN))));
+		printExampleLine("new Quantity<>(50.0, CELSIUS).equals(new Quantity<>(122.0, FAHRENHEIT))",
+				String.valueOf(new Quantity<>(50.0, TemperatureUnit.CELSIUS)
+						.equals(new Quantity<>(122.0, TemperatureUnit.FAHRENHEIT))) + " (within epsilon)");
+
+		System.out.println();
+		System.out.println("Temperature Conversions:");
+		System.out.println();
+		printExampleLine("new Quantity<>(100.0, CELSIUS).convertTo(FAHRENHEIT)",
+				new Quantity<>(100.0, TemperatureUnit.CELSIUS).convertTo(TemperatureUnit.FAHRENHEIT).toString());
+		printExampleLine("new Quantity<>(32.0, FAHRENHEIT).convertTo(CELSIUS)",
+				new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT).convertTo(TemperatureUnit.CELSIUS).toString());
+		printExampleLine("new Quantity<>(273.15, KELVIN).convertTo(CELSIUS)",
+				new Quantity<>(273.15, TemperatureUnit.KELVIN).convertTo(TemperatureUnit.CELSIUS).toString());
+		printExampleLine("new Quantity<>(0.0, CELSIUS).convertTo(KELVIN)",
+				new Quantity<>(0.0, TemperatureUnit.CELSIUS).convertTo(TemperatureUnit.KELVIN).toString());
+		printExampleLine("new Quantity<>(-40.0, CELSIUS).convertTo(FAHRENHEIT)",
+				new Quantity<>(-40.0, TemperatureUnit.CELSIUS).convertTo(TemperatureUnit.FAHRENHEIT).toString()
+						+ " (equal point)");
+
+		System.out.println();
+		System.out.println("Unsupported Operations (Error Handling):");
+		System.out.println();
+		printExceptionExample("new Quantity<>(100.0, CELSIUS).add(new Quantity<>(50.0, CELSIUS))", new Operation() {
+			@Override
+			public Object execute() {
+				return new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+						.add(new Quantity<>(50.0, TemperatureUnit.CELSIUS));
+			}
+		}, "");
+		printExceptionExample("new Quantity<>(100.0, CELSIUS).subtract(new Quantity<>(50.0, CELSIUS))", new Operation() {
+			@Override
+			public Object execute() {
+				return new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+						.subtract(new Quantity<>(50.0, TemperatureUnit.CELSIUS));
+			}
+		}, "");
+		printExceptionExample("new Quantity<>(100.0, CELSIUS).divide(new Quantity<>(50.0, CELSIUS))", new Operation() {
+			@Override
+			public Object execute() {
+				return new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+						.divide(new Quantity<>(50.0, TemperatureUnit.CELSIUS));
+			}
+		}, "");
+
+		System.out.println();
+		System.out.println("Cross-Category Prevention:");
+		System.out.println();
+		printExampleLine("new Quantity<>(100.0, CELSIUS).equals(new Quantity<>(100.0, FEET))",
+				crossCategoryEquals(new Quantity<>(100.0, TemperatureUnit.CELSIUS),
+						new Quantity<>(100.0, LengthUnit.FEET)) + " (different categories)");
+
+		System.out.println();
+		System.out.println("Temperature Comparisons with Other Categories:");
+		System.out.println();
+		printExampleLine("new Quantity<>(50.0, CELSIUS).equals(new Quantity<>(50.0, KILOGRAM))",
+				String.valueOf(crossCategoryEquals(new Quantity<>(50.0, TemperatureUnit.CELSIUS),
+						new Quantity<>(50.0, WeightUnit.KILOGRAM))));
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
@@ -404,6 +477,11 @@ public final class QuantityMeasurementApp {
 			System.out.println("Input: " + input + " → Output: Throws " + exception.getClass().getSimpleName() + suffix
 					+ " with message: " + exception.getMessage());
 		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static boolean crossCategoryEquals(Quantity first, Quantity second) {
+		return first.equals(second);
 	}
 
 	private interface Operation {
