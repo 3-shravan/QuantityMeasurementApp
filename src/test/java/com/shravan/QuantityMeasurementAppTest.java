@@ -1821,6 +1821,245 @@ public class QuantityMeasurementAppTest {
                 new Quantity<>(1.0, LengthUnit.FEET).divide(new Quantity<>(3.0, LengthUnit.FEET)), 1e-6);
     }
 
+    @Test
+    public void testRefactoring_Add_DelegatesViaHelper() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("performBaseArithmetic(other, targetUnit, ArithmeticOperation.ADD"));
+    }
+
+    @Test
+    public void testRefactoring_Subtract_DelegatesViaHelper() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("performBaseArithmetic(other, targetUnit, ArithmeticOperation.SUBTRACT"));
+    }
+
+    @Test
+    public void testRefactoring_Divide_DelegatesViaHelper() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("performBaseArithmetic(other, null, ArithmeticOperation.DIVIDE"));
+    }
+
+    @Test
+    public void testValidation_NullOperand_ConsistentAcrossOperations() {
+        Throwable addError = captureException(() -> new Quantity<>(10.0, LengthUnit.FEET).add(null));
+        Throwable subtractError = captureException(() -> new Quantity<>(10.0, LengthUnit.FEET).subtract(null));
+        Throwable divideError = captureException(() -> new Quantity<>(10.0, LengthUnit.FEET).divide(null));
+
+        assertTrue(addError instanceof IllegalArgumentException);
+        assertTrue(subtractError instanceof IllegalArgumentException);
+        assertTrue(divideError instanceof IllegalArgumentException);
+
+        assertTrue(addError.getMessage().contains("cannot be null"));
+        assertTrue(subtractError.getMessage().contains("cannot be null"));
+        assertTrue(divideError.getMessage().contains("cannot be null"));
+    }
+
+    @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void testValidation_CrossCategory_ConsistentAcrossOperations() {
+        Quantity length = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity weight = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+
+        Throwable addError = captureException(() -> length.add(weight));
+        Throwable subtractError = captureException(() -> length.subtract(weight));
+        Throwable divideError = captureException(() -> length.divide(weight));
+
+        assertEquals("Quantities must belong to the same measurement category", addError.getMessage());
+        assertEquals("Quantities must belong to the same measurement category", subtractError.getMessage());
+        assertEquals("Quantities must belong to the same measurement category", divideError.getMessage());
+    }
+
+    @Test
+    public void testValidation_NullTargetUnit_AddSubtractReject() {
+        Throwable addError = captureException(
+                () -> new Quantity<>(10.0, LengthUnit.FEET).add(new Quantity<>(5.0, LengthUnit.FEET), null));
+        Throwable subtractError = captureException(
+                () -> new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(5.0, LengthUnit.FEET), null));
+
+        assertTrue(addError instanceof IllegalArgumentException);
+        assertTrue(subtractError instanceof IllegalArgumentException);
+        assertEquals("Target unit cannot be null", addError.getMessage());
+        assertEquals("Target unit cannot be null", subtractError.getMessage());
+    }
+
+    @Test
+    public void testArithmeticOperation_Add_EnumComputation() throws Exception {
+        assertEquals(15.0, invokeArithmeticOperation("ADD", 10.0, 5.0), EPS);
+    }
+
+    @Test
+    public void testArithmeticOperation_Subtract_EnumComputation() throws Exception {
+        assertEquals(5.0, invokeArithmeticOperation("SUBTRACT", 10.0, 5.0), EPS);
+    }
+
+    @Test
+    public void testArithmeticOperation_Divide_EnumComputation() throws Exception {
+        assertEquals(2.0, invokeArithmeticOperation("DIVIDE", 10.0, 5.0), EPS);
+    }
+
+    @Test
+    public void testArithmeticOperation_DivideByZero_EnumThrows() {
+        Throwable error = captureException(() -> invokeArithmeticOperation("DIVIDE", 10.0, 0.0));
+        assertTrue(error instanceof ArithmeticException);
+        assertEquals("Cannot divide by zero quantity", error.getMessage());
+    }
+
+    @Test
+    public void testPerformBaseArithmetic_ConversionAndOperation() {
+        Quantity<LengthUnit> result = new Quantity<>(1.0, LengthUnit.FEET)
+                .add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.YARDS);
+        assertEquals(0.667, result.getValue(), EPS);
+        assertEquals(LengthUnit.YARDS, result.getUnit());
+    }
+
+    @Test
+    public void testRounding_AddSubtract_TwoDecimalPlaces() {
+        Quantity<LengthUnit> addResult = new Quantity<>(1.111, LengthUnit.FEET)
+                .add(new Quantity<>(0.002, LengthUnit.FEET), LengthUnit.FEET);
+        Quantity<LengthUnit> subtractResult = new Quantity<>(1.111, LengthUnit.FEET)
+                .subtract(new Quantity<>(0.002, LengthUnit.FEET), LengthUnit.FEET);
+
+        assertEquals(1.113, addResult.getValue(), 1e-6);
+        assertEquals(1.109, subtractResult.getValue(), 1e-6);
+    }
+
+    @Test
+    public void testRounding_Divide_NoExtraUnitConversion() {
+        double ratio = new Quantity<>(1.0, LengthUnit.FEET).divide(new Quantity<>(3.0, LengthUnit.FEET));
+        assertEquals(0.333333, ratio, 1e-6);
+    }
+
+    @Test
+    public void testImplicitTargetUnit_AddSubtract() {
+        Quantity<LengthUnit> addResult = new Quantity<>(12.0, LengthUnit.INCHES)
+                .add(new Quantity<>(1.0, LengthUnit.FEET));
+        Quantity<LengthUnit> subtractResult = new Quantity<>(120.0, LengthUnit.INCHES)
+                .subtract(new Quantity<>(5.0, LengthUnit.FEET));
+
+        assertEquals(LengthUnit.INCHES, addResult.getUnit());
+        assertEquals(LengthUnit.INCHES, subtractResult.getUnit());
+    }
+
+    @Test
+    public void testExplicitTargetUnit_AddSubtract_Overrides() {
+        Quantity<LengthUnit> addResult = new Quantity<>(12.0, LengthUnit.INCHES)
+                .add(new Quantity<>(1.0, LengthUnit.FEET), LengthUnit.FEET);
+        Quantity<LengthUnit> subtractResult = new Quantity<>(120.0, LengthUnit.INCHES)
+                .subtract(new Quantity<>(5.0, LengthUnit.FEET), LengthUnit.FEET);
+
+        assertEquals(LengthUnit.FEET, addResult.getUnit());
+        assertEquals(LengthUnit.FEET, subtractResult.getUnit());
+    }
+
+    @Test
+    public void testImmutability_AfterAdd_ViaCentralizedHelper() {
+        Quantity<LengthUnit> first = new Quantity<>(1.0, LengthUnit.FEET);
+        Quantity<LengthUnit> second = new Quantity<>(12.0, LengthUnit.INCHES);
+
+        first.add(second);
+
+        assertEquals("Quantity(1.0, FEET)", first.toString());
+        assertEquals("Quantity(12.0, INCHES)", second.toString());
+    }
+
+    @Test
+    public void testImmutability_AfterSubtract_ViaCentralizedHelper() {
+        Quantity<LengthUnit> first = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> second = new Quantity<>(6.0, LengthUnit.INCHES);
+
+        first.subtract(second);
+
+        assertEquals("Quantity(10.0, FEET)", first.toString());
+        assertEquals("Quantity(6.0, INCHES)", second.toString());
+    }
+
+    @Test
+    public void testImmutability_AfterDivide_ViaCentralizedHelper() {
+        Quantity<LengthUnit> first = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> second = new Quantity<>(2.0, LengthUnit.FEET);
+
+        first.divide(second);
+
+        assertEquals("Quantity(10.0, FEET)", first.toString());
+        assertEquals("Quantity(2.0, FEET)", second.toString());
+    }
+
+    @Test
+    public void testAllOperations_AcrossAllCategories() {
+        assertEquals("Quantity(2.0, FEET)",
+                new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES)).toString());
+        assertEquals("Quantity(5.0, KILOGRAM)",
+                new Quantity<>(10.0, WeightUnit.KILOGRAM).subtract(new Quantity<>(5000.0, WeightUnit.GRAM))
+                        .toString());
+        assertEquals(1.0,
+                new Quantity<>(1000.0, VolumeUnit.MILLILITRE).divide(new Quantity<>(1.0, VolumeUnit.LITRE)), EPS);
+    }
+
+    @Test
+    public void testCodeDuplication_ValidationLogic_Eliminated() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("private void validateArithmeticOperands"));
+        assertTrue(source.contains("validateArithmeticOperands(other, targetUnit, targetUnitRequired"));
+    }
+
+    @Test
+    public void testCodeDuplication_ConversionLogic_Eliminated() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("double thisBaseValue = toBaseUnit();"));
+        assertTrue(source.contains("double otherBaseValue = other.toBaseUnit();"));
+    }
+
+    @Test
+    public void testEnumDispatch_AllOperations_CorrectlyDispatched() throws Exception {
+        String source = java.nio.file.Files.readString(
+                java.nio.file.Paths.get("src", "main", "java", "com", "shravan", "Quantity.java"));
+        assertTrue(source.contains("ArithmeticOperation.ADD"));
+        assertTrue(source.contains("ArithmeticOperation.SUBTRACT"));
+        assertTrue(source.contains("ArithmeticOperation.DIVIDE"));
+    }
+
+    @Test
+    public void testErrorMessage_Consistency_Across_Operations() {
+        Quantity<LengthUnit> base = new Quantity<>(10.0, LengthUnit.FEET);
+
+        Throwable addError = captureException(() -> base.add(null));
+        Throwable subtractError = captureException(() -> base.subtract(null));
+        Throwable divideError = captureException(() -> base.divide(null));
+
+        assertTrue(addError.getMessage().contains("cannot be null"));
+        assertTrue(subtractError.getMessage().contains("cannot be null"));
+        assertTrue(divideError.getMessage().contains("cannot be null"));
+    }
+
+    @Test
+    public void testHelper_PrivateVisibility() throws Exception {
+        java.lang.reflect.Method method = Quantity.class.getDeclaredMethod("performBaseArithmetic",
+                Quantity.class, IMeasurable.class, Class.forName("com.shravan.Quantity$ArithmeticOperation"),
+                String.class);
+        assertTrue(java.lang.reflect.Modifier.isPrivate(method.getModifiers()));
+    }
+
+    @Test
+    public void testValidation_Helper_PrivateVisibility() throws Exception {
+        java.lang.reflect.Method method = Quantity.class.getDeclaredMethod("validateArithmeticOperands",
+                Quantity.class, IMeasurable.class, boolean.class, String.class);
+        assertTrue(java.lang.reflect.Modifier.isPrivate(method.getModifiers()));
+    }
+
+    @Test
+    public void testArithmetic_Chain_Operations() {
+        double result = new Quantity<>(10.0, LengthUnit.FEET)
+                .add(new Quantity<>(12.0, LengthUnit.INCHES))
+                .subtract(new Quantity<>(6.0, LengthUnit.INCHES))
+                .divide(new Quantity<>(2.0, LengthUnit.FEET));
+        assertEquals(0.75, result, 1e-6);
+    }
+
     private <U extends IMeasurable> void assertAllConversionsMatchBaseUnit(U[] units, double[] samples) {
         for (U source : units) {
             for (double sample : samples) {
@@ -1854,6 +2093,30 @@ public class QuantityMeasurementAppTest {
 
     private static String describeQuantity(Quantity<? extends IMeasurable> quantity) {
         return quantity.getUnit().getUnitName();
+    }
+
+    private static double invokeArithmeticOperation(String enumConstant, double left, double right) throws Exception {
+        Class<?> enumType = Class.forName("com.shravan.Quantity$ArithmeticOperation");
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        Object enumValue = java.lang.Enum.valueOf((Class<? extends java.lang.Enum>) enumType, enumConstant);
+        java.lang.reflect.Method compute = enumType.getDeclaredMethod("compute", double.class, double.class);
+        compute.setAccessible(true);
+        Object result = compute.invoke(enumValue, left, right);
+        return ((Double) result).doubleValue();
+    }
+
+    private static Throwable captureException(ThrowingRunnable runnable) {
+        try {
+            runnable.run();
+            fail("Expected exception to be thrown");
+            return null;
+        } catch (Throwable error) {
+            if (error instanceof java.lang.reflect.InvocationTargetException
+                    && ((java.lang.reflect.InvocationTargetException) error).getTargetException() != null) {
+                return ((java.lang.reflect.InvocationTargetException) error).getTargetException();
+            }
+            return error;
+        }
     }
 
     private static boolean hasSetter(Class<?> type) {

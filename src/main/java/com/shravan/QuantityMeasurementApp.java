@@ -273,93 +273,73 @@ public final class QuantityMeasurementApp {
 	public static void main(String[] args) {
 		System.out.println("Example Output of running the App");
 		System.out.println();
-		System.out.println("Subtraction with Implicit Target Unit:");
+		System.out.println("Addition Operations (Behavior Unchanged from UC12):");
+		System.out.println();
+		printExampleLine("new Quantity<>(1.0, FEET).add(new Quantity<>(12.0, INCHES))",
+				new Quantity<>(1.0, LengthUnit.FEET).add(new Quantity<>(12.0, LengthUnit.INCHES)).toString());
+		printExampleLine("new Quantity<>(10.0, KILOGRAM).add(new Quantity<>(5000.0, GRAM), GRAM)",
+				new Quantity<>(10.0, WeightUnit.KILOGRAM).add(new Quantity<>(5000.0, WeightUnit.GRAM), WeightUnit.GRAM)
+						.toString());
+		System.out.println("Internal: Calls performBaseArithmetic(other, ADD) after validation");
+
+		System.out.println();
+		System.out.println("Subtraction Operations (Behavior Unchanged from UC12):");
 		System.out.println();
 		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(6.0, INCHES))",
 				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(6.0, LengthUnit.INCHES)).toString());
-		printExampleLine("new Quantity<>(10.0, KILOGRAM).subtract(new Quantity<>(5000.0, GRAM))",
-				new Quantity<>(10.0, WeightUnit.KILOGRAM).subtract(new Quantity<>(5000.0, WeightUnit.GRAM)).toString());
-		printExampleLine("new Quantity<>(5.0, LITRE).subtract(new Quantity<>(500.0, MILLILITRE))",
-				new Quantity<>(5.0, VolumeUnit.LITRE).subtract(new Quantity<>(500.0, VolumeUnit.MILLILITRE)).toString());
-
-		System.out.println();
-		System.out.println("Subtraction with Explicit Target Unit:");
-		System.out.println();
-		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(6.0, INCHES), INCHES)",
-				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(6.0, LengthUnit.INCHES), LengthUnit.INCHES)
-						.toString());
-		printExampleLine("new Quantity<>(10.0, KILOGRAM).subtract(new Quantity<>(5000.0, GRAM), GRAM)",
-				new Quantity<>(10.0, WeightUnit.KILOGRAM)
-						.subtract(new Quantity<>(5000.0, WeightUnit.GRAM), WeightUnit.GRAM).toString());
 		printExampleLine("new Quantity<>(5.0, LITRE).subtract(new Quantity<>(2.0, LITRE), MILLILITRE)",
 				new Quantity<>(5.0, VolumeUnit.LITRE)
 						.subtract(new Quantity<>(2.0, VolumeUnit.LITRE), VolumeUnit.MILLILITRE).toString());
+		System.out.println("Internal: Calls performBaseArithmetic(other, SUBTRACT) after validation");
 
 		System.out.println();
-		System.out.println("Subtraction Resulting in Negative Values:");
-		System.out.println();
-		printExampleLine("new Quantity<>(5.0, FEET).subtract(new Quantity<>(10.0, FEET))",
-				new Quantity<>(5.0, LengthUnit.FEET).subtract(new Quantity<>(10.0, LengthUnit.FEET)).toString());
-		printExampleLine("new Quantity<>(2.0, KILOGRAM).subtract(new Quantity<>(5.0, KILOGRAM))",
-				new Quantity<>(2.0, WeightUnit.KILOGRAM).subtract(new Quantity<>(5.0, WeightUnit.KILOGRAM)).toString());
-
-		System.out.println();
-		System.out.println("Subtraction Resulting in Zero:");
-		System.out.println();
-		printExampleLine("new Quantity<>(10.0, FEET).subtract(new Quantity<>(120.0, INCHES))",
-				new Quantity<>(10.0, LengthUnit.FEET).subtract(new Quantity<>(120.0, LengthUnit.INCHES)).toString());
-		printExampleLine("new Quantity<>(1.0, LITRE).subtract(new Quantity<>(1000.0, MILLILITRE))",
-				new Quantity<>(1.0, VolumeUnit.LITRE).subtract(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)).toString());
-
-		System.out.println();
-		System.out.println("Division Operations:");
+		System.out.println("Division Operations (Behavior Unchanged from UC12):");
 		System.out.println();
 		printExampleLine("new Quantity<>(10.0, FEET).divide(new Quantity<>(2.0, FEET))",
 				String.valueOf(new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(2.0, LengthUnit.FEET))));
-		printExampleLine("new Quantity<>(10.0, FEET).divide(new Quantity<>(5.0, FEET))",
-				String.valueOf(new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(5.0, LengthUnit.FEET))));
 		printExampleLine("new Quantity<>(24.0, INCHES).divide(new Quantity<>(2.0, FEET))",
 				String.valueOf(new Quantity<>(24.0, LengthUnit.INCHES).divide(new Quantity<>(2.0, LengthUnit.FEET))));
-		printExampleLine("new Quantity<>(10.0, KILOGRAM).divide(new Quantity<>(5.0, KILOGRAM))",
-				String.valueOf(new Quantity<>(10.0, WeightUnit.KILOGRAM).divide(new Quantity<>(5.0, WeightUnit.KILOGRAM))));
-		printExampleLine("new Quantity<>(5.0, LITRE).divide(new Quantity<>(10.0, LITRE))",
-				String.valueOf(new Quantity<>(5.0, VolumeUnit.LITRE).divide(new Quantity<>(10.0, VolumeUnit.LITRE))));
+		System.out.println("Internal: Calls performBaseArithmetic(other, DIVIDE) and returns scalar");
 
 		System.out.println();
-		System.out.println("Division with Different Units (Same Category):");
+		System.out.println("Error Cases (Consistent Across All Operations):");
 		System.out.println();
-		printExampleLine("new Quantity<>(12.0, INCHES).divide(new Quantity<>(1.0, FEET))",
-				String.valueOf(new Quantity<>(12.0, LengthUnit.INCHES).divide(new Quantity<>(1.0, LengthUnit.FEET))));
-		printExampleLine("new Quantity<>(2000.0, GRAM).divide(new Quantity<>(1.0, KILOGRAM))",
-				String.valueOf(new Quantity<>(2000.0, WeightUnit.GRAM).divide(new Quantity<>(1.0, WeightUnit.KILOGRAM))));
-		printExampleLine("new Quantity<>(1000.0, MILLILITRE).divide(new Quantity<>(1.0, LITRE))",
-				String.valueOf(new Quantity<>(1000.0, VolumeUnit.MILLILITRE).divide(new Quantity<>(1.0, VolumeUnit.LITRE))));
-
-		System.out.println();
-		System.out.println("Error Cases:");
-		System.out.println();
-		printExceptionExample("new Quantity<>(10.0, FEET).subtract(null)", new Operation() {
+		printExceptionExample("new Quantity<>(10.0, FEET).add(null)", new Operation() {
 			@Override
 			public Object execute() {
-				return new Quantity<>(10.0, LengthUnit.FEET).subtract(null);
+				return new Quantity<>(10.0, LengthUnit.FEET).add(null);
 			}
 		}, "");
+		printExceptionExample("new Quantity<>(10.0, FEET).subtract(new Quantity<>(5.0, KILOGRAM))", new Operation() {
+			@Override
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			public Object execute() {
+				Quantity first = new Quantity<>(10.0, LengthUnit.FEET);
+				Quantity second = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+				return first.subtract(second);
+			}
+		}, " (cross-category)");
 		printExceptionExample("new Quantity<>(10.0, FEET).divide(new Quantity<>(0.0, FEET))", new Operation() {
 			@Override
 			public Object execute() {
 				return new Quantity<>(10.0, LengthUnit.FEET).divide(new Quantity<>(0.0, LengthUnit.FEET));
 			}
 		}, "");
-		printExceptionExample("new Quantity<>(10.0, FEET).subtract(new Quantity<>(5.0, KILOGRAM))",
-				new Operation() {
-					@Override
-					@SuppressWarnings({ "rawtypes", "unchecked" })
-					public Object execute() {
-						Quantity first = new Quantity<>(10.0, LengthUnit.FEET);
-						Quantity second = new Quantity<>(5.0, WeightUnit.KILOGRAM);
-						return first.subtract(second);
-					}
-				}, " (cross-category)");
+
+		System.out.println();
+		System.out.println("Internal Flow Example:");
+		System.out.println();
+		System.out.println("q1.subtract(q2, FEET)");
+		System.out.println("  ↓");
+		System.out.println("validateArithmeticOperands(q2, FEET, true)");
+		System.out.println("  ↓");
+		System.out.println("performBaseArithmetic(q2, SUBTRACT)");
+		System.out.println("  ↓");
+		System.out.println("SUBTRACT.compute(q1.baseValue, q2.baseValue)");
+		System.out.println("  ↓");
+		System.out.println("Convert result to FEET");
+		System.out.println("  ↓");
+		System.out.println("Return new Quantity<>(..., FEET)");
 	}
 
 	private static void validateLength(QuantityLength length, String message) {
@@ -421,7 +401,8 @@ public final class QuantityMeasurementApp {
 			operation.execute();
 			System.out.println("Input: " + input + " → Output: No exception thrown");
 		} catch (RuntimeException exception) {
-			System.out.println("Input: " + input + " → Output: Throws " + exception.getClass().getSimpleName() + suffix);
+			System.out.println("Input: " + input + " → Output: Throws " + exception.getClass().getSimpleName() + suffix
+					+ " with message: " + exception.getMessage());
 		}
 	}
 

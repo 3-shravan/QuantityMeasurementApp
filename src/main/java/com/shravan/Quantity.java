@@ -3,6 +3,7 @@ package com.shravan;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
+import java.util.function.DoubleBinaryOperator;
 
 public final class Quantity<U extends IMeasurable> {
 
@@ -45,10 +46,8 @@ public final class Quantity<U extends IMeasurable> {
   }
 
   public Quantity<U> add(Quantity<U> other, U targetUnit) {
-    validateCompatibleQuantity(other, "Quantity to add cannot be null");
-    validateCompatibleUnit(targetUnit, "Target unit cannot be null");
-
-    double sumInBaseUnit = toBaseUnit() + other.toBaseUnit();
+    double sumInBaseUnit = performBaseArithmetic(other, targetUnit, ArithmeticOperation.ADD,
+        "Quantity to add cannot be null");
     double convertedValue = targetUnit.convertFromBaseUnit(sumInBaseUnit);
     return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
   }
@@ -58,23 +57,16 @@ public final class Quantity<U extends IMeasurable> {
   }
 
   public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
-    validateCompatibleQuantity(other, "Quantity to subtract cannot be null");
-    validateCompatibleUnit(targetUnit, "Target unit cannot be null");
-
-    double differenceInBaseUnit = toBaseUnit() - other.toBaseUnit();
+    double differenceInBaseUnit = performBaseArithmetic(other, targetUnit, ArithmeticOperation.SUBTRACT,
+        "Quantity to subtract cannot be null");
     double convertedValue = targetUnit.convertFromBaseUnit(differenceInBaseUnit);
     return new Quantity<>(round(convertedValue, OUTPUT_SCALE), targetUnit);
   }
 
   public double divide(Quantity<U> other) {
-    validateCompatibleQuantity(other, "Quantity to divide cannot be null");
-
-    double divisorInBaseUnit = other.toBaseUnit();
-    if (Double.compare(divisorInBaseUnit, 0.0) == 0) {
-      throw new ArithmeticException("Cannot divide by zero quantity");
-    }
-
-    return round(toBaseUnit() / divisorInBaseUnit, OUTPUT_SCALE);
+    double quotientInBaseUnit = performBaseArithmetic(other, null, ArithmeticOperation.DIVIDE,
+        "Quantity to divide cannot be null");
+    return round(quotientInBaseUnit, OUTPUT_SCALE);
   }
 
   public static <U extends IMeasurable> Quantity<U> add(double firstValue, U firstUnit,
@@ -131,6 +123,26 @@ public final class Quantity<U extends IMeasurable> {
     return round(toBaseUnit(), BASE_COMPARISON_SCALE);
   }
 
+  private double performBaseArithmetic(Quantity<U> other, U targetUnit, ArithmeticOperation operation,
+      String nullOperandMessage) {
+    boolean targetUnitRequired = operation != ArithmeticOperation.DIVIDE;
+    validateArithmeticOperands(other, targetUnit, targetUnitRequired, nullOperandMessage);
+    double thisBaseValue = toBaseUnit();
+    double otherBaseValue = other.toBaseUnit();
+    return operation.compute(thisBaseValue, otherBaseValue);
+  }
+
+  private void validateArithmeticOperands(Quantity<U> other, U targetUnit, boolean targetUnitRequired,
+      String nullOperandMessage) {
+    validateCompatibleQuantity(other, nullOperandMessage);
+    IMeasurable.validateValue(value);
+    IMeasurable.validateValue(other.value);
+
+    if (targetUnitRequired) {
+      validateCompatibleUnit(targetUnit, "Target unit cannot be null");
+    }
+  }
+
   private void validateCompatibleQuantity(Quantity<?> other, String nullMessage) {
     if (other == null) {
       throw new IllegalArgumentException(nullMessage);
@@ -153,6 +165,27 @@ public final class Quantity<U extends IMeasurable> {
     return BigDecimal.valueOf(value)
         .setScale(scale, RoundingMode.HALF_UP)
         .doubleValue();
+  }
+
+  private enum ArithmeticOperation {
+    ADD((a, b) -> a + b),
+    SUBTRACT((a, b) -> a - b),
+    DIVIDE((a, b) -> {
+      if (Double.compare(b, 0.0) == 0) {
+        throw new ArithmeticException("Cannot divide by zero quantity");
+      }
+      return a / b;
+    });
+
+    private final DoubleBinaryOperator operation;
+
+    ArithmeticOperation(DoubleBinaryOperator operation) {
+      this.operation = operation;
+    }
+
+    double compute(double thisBase, double otherBase) {
+      return operation.applyAsDouble(thisBase, otherBase);
+    }
   }
 
   private static String formatValue(double value) {
