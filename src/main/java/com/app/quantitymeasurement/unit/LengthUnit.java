@@ -1,4 +1,4 @@
-package com.shravan;
+package com.app.quantitymeasurement.unit;
 
 public enum LengthUnit implements IMeasurable {
   FEET(1.0),
@@ -7,24 +7,13 @@ public enum LengthUnit implements IMeasurable {
   CENTIMETERS(1.0 / 30.48);
 
   private final double conversionFactor;
-  private final SupportsArithmetic supportsArithmetic;
 
   LengthUnit(double conversionFactor) {
     this.conversionFactor = conversionFactor;
-    this.supportsArithmetic = () -> true;
   }
 
+  @Override
   public double getConversionFactor() {
     return conversionFactor;
-  }
-
-  @Override
-  public String getUnitName() {
-    return name();
-  }
-
-  @Override
-  public SupportsArithmetic getSupportsArithmetic() {
-    return supportsArithmetic;
   }
 }
