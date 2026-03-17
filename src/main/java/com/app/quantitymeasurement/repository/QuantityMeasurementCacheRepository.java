@@ -64,6 +64,26 @@ public final class QuantityMeasurementCacheRepository implements IQuantityMeasur
   }
 
   @Override
+  public synchronized List<QuantityMeasurementEntity> findByOperation(String operation) {
+    if (operation == null) {
+      return new ArrayList<>();
+    }
+    return cache.values().stream()
+        .filter(entity -> operation.equalsIgnoreCase(entity.getOperation()))
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public synchronized long getTotalCount() {
+    return cache.size();
+  }
+
+  @Override
+  public synchronized void deleteAll() {
+    cache.clear();
+  }
+
+  @Override
   public synchronized void deleteById(long id) {
     cache.remove(id);
   }

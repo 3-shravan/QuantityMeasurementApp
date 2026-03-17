@@ -15,5 +15,19 @@ public interface IQuantityMeasurementRepository {
 
   List<QuantityMeasurementEntity> findByMeasurementType(String measurementType);
 
+  List<QuantityMeasurementEntity> findByOperation(String operation);
+
+  long getTotalCount();
+
+  void deleteAll();
+
   void deleteById(long id);
+
+  default String getPoolStatistics() {
+    return "Pooling not supported";
+  }
+
+  default void releaseResources() {
+    // no-op for repositories without external resources
+  }
 }

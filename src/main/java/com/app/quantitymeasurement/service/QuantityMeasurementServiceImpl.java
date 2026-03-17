@@ -11,10 +11,14 @@ import com.app.quantitymeasurement.unit.LengthUnit;
 import com.app.quantitymeasurement.unit.TemperatureUnit;
 import com.app.quantitymeasurement.unit.VolumeUnit;
 import com.app.quantitymeasurement.unit.WeightUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class QuantityMeasurementServiceImpl implements QuantityMeasurementService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
 
   private final IQuantityMeasurementRepository repository;
 
@@ -23,6 +27,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       throw new IllegalArgumentException("Repository cannot be null");
     }
     this.repository = repository;
+    LOGGER.info("QuantityMeasurementService initialized with repository: {}", repository.getClass().getSimpleName());
   }
 
   @Override
@@ -37,6 +42,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       return repository.save(new QuantityMeasurementEntity(first.getValue(), first.getUnit(),
           second.getValue(), second.getUnit(), operation, left.getUnit().getMeasurementType(), String.valueOf(result)));
     } catch (RuntimeException ex) {
+      LOGGER.warn("Compare operation failed: {}", ex.getMessage());
       return saveError(operation, first, second, ex);
     }
   }
@@ -54,6 +60,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       return repository.save(new QuantityMeasurementEntity(source.getValue(), source.getUnit(),
           null, targetUnit, operation, from.getUnit().getMeasurementType(), result));
     } catch (RuntimeException ex) {
+      LOGGER.warn("Convert operation failed: {}", ex.getMessage());
       return saveError(operation, source, null, ex);
     }
   }
@@ -77,6 +84,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       return repository.save(new QuantityMeasurementEntity(first.getValue(), first.getUnit(),
           second.getValue(), second.getUnit(), operation, left.getUnit().getMeasurementType(), result));
     } catch (RuntimeException ex) {
+      LOGGER.warn("Add operation failed: {}", ex.getMessage());
       return saveError(operation, first, second, ex);
     }
   }
@@ -100,6 +108,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       return repository.save(new QuantityMeasurementEntity(first.getValue(), first.getUnit(),
           second.getValue(), second.getUnit(), operation, left.getUnit().getMeasurementType(), result));
     } catch (RuntimeException ex) {
+      LOGGER.warn("Subtract operation failed: {}", ex.getMessage());
       return saveError(operation, first, second, ex);
     }
   }
@@ -116,6 +125,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
       return repository.save(new QuantityMeasurementEntity(first.getValue(), first.getUnit(),
           second.getValue(), second.getUnit(), operation, left.getUnit().getMeasurementType(), String.valueOf(value)));
     } catch (RuntimeException ex) {
+      LOGGER.warn("Divide operation failed: {}", ex.getMessage());
       return saveError(operation, first, second, ex);
     }
   }

@@ -3,10 +3,14 @@ package com.app.quantitymeasurement.controller;
 import com.app.quantitymeasurement.entity.QuantityDTO;
 import com.app.quantitymeasurement.entity.QuantityMeasurementEntity;
 import com.app.quantitymeasurement.service.IQuantityMeasurementService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class QuantityMeasurementControllerImpl implements QuantityMeasurementController {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(QuantityMeasurementControllerImpl.class);
 
   private final IQuantityMeasurementService service;
 
@@ -15,6 +19,7 @@ public class QuantityMeasurementControllerImpl implements QuantityMeasurementCon
       throw new IllegalArgumentException("Service cannot be null");
     }
     this.service = service;
+    LOGGER.info("QuantityMeasurementController initialized");
   }
 
   @Override
