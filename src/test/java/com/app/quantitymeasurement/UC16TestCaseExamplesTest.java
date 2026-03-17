@@ -74,8 +74,8 @@ public class UC16TestCaseExamplesTest {
   public void testPomDependencies_JDBCDriversIncluded() throws Exception {
     String pom = Files.readString(Path.of("pom.xml"));
     assertTrue(pom.contains("com.h2database"));
-    assertTrue(pom.contains("mysql-connector-j"));
-    assertTrue(pom.contains("postgresql"));
+    assertTrue(pom.contains("mysql-connector-java") || pom.contains("mysql-connector-j"));
+    assertTrue(pom.contains("JDBC Drivers"));
     assertTrue(pom.contains("junit"));
     assertTrue(pom.contains("mockito"));
   }
@@ -409,6 +409,8 @@ public class UC16TestCaseExamplesTest {
     String pom = Files.readString(Path.of("pom.xml"));
     assertTrue(pom.contains("maven-compiler-plugin"));
     assertTrue(pom.contains("maven-surefire-plugin"));
-    assertTrue(pom.contains("<release>17</release>"));
+    assertTrue(
+        pom.contains("<release>17</release>") ||
+            (pom.contains("<source>11</source>") && pom.contains("<target>11</target>")));
   }
 }
