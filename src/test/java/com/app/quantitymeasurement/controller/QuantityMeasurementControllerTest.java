@@ -1,45 +1,91 @@
 package com.app.quantitymeasurement.controller;
 
-import com.app.quantitymeasurement.entity.QuantityDTO;
-import com.app.quantitymeasurement.repository.QuantityMeasurementDataBaseRepository;
-import com.app.quantitymeasurement.service.QuantityMeasurementServiceImpl;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import com.app.quantitymeasurement.config.SecurityConfig;
+import com.app.quantitymeasurement.model.QuantityDTO;
+import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
+import com.app.quantitymeasurement.service.IQuantityMeasurementService;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-public class QuantityMeasurementControllerTest {
+@WebMvcTest(QuantityMeasurementController.class)
+@Import(SecurityConfig.class)
+class QuantityMeasurementControllerTest {
 
-  private QuantityMeasurementDataBaseRepository repository;
-  private QuantityMeasurementControllerImpl controller;
+  @Autowired
+  private MockMvc mockMvc;
 
-  @Before
-  public void setUp() {
-    System.setProperty("app.env", "test");
-    repository = new QuantityMeasurementDataBaseRepository();
-    repository.deleteAll();
-    controller = new QuantityMeasurementControllerImpl(new QuantityMeasurementServiceImpl(repository));
-  }
+  @MockBean
+  private IQuantityMeasurementService service;
 
-  @After
-  public void tearDown() {
-    repository.deleteAll();
-    repository.releaseResources();
+  @Test
+  void compareQuantities_ReturnsOk() throws Exception {
+    QuantityMeasurementDTO response = QuantityMeasurementDTO.builder()
+        .operation("compare")
+        .resultString("true")
+        .error(false)
+        .build();
+
+    when(service.compareQuantities(any(QuantityDTO.class), any(QuantityDTO.class))).thenReturn(response);
+
+    String payload = """
+        {
+          "thisQuantityDTO": {"value": 1.0, "unit": "FEET", "measurementType": "LengthUnit"},
+          "thatQuantityDTO": {"value": 12.0, "unit": "INCHES", "measurementType": "LengthUnit"}
+        }
+        """;
+
+    mockMvc.perform(post("/api/v1/quantities/compare")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(payload))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.operation").value("compare"))
+        .andExpect(jsonPath("$.resultString").value("true"));
+
+    Mockito.verify(service).compareQuantities(any(QuantityDTO.class), any(QuantityDTO.class));
   }
 
   @Test
-  public void testControllerCompare() {
-    assertFalse(controller.performCompare(new QuantityDTO(2, "FEET"), new QuantityDTO(24, "INCHES")).hasError());
-    assertEquals(1, repository.getTotalCount());
+  void getOperationHistory_ReturnsOk() throws Exception {
+    QuantityMeasurementDTO row = QuantityMeasurementDTO.builder()
+        .operation("add")
+        .resultValue(2.0)
+        .error(false)
+        .build();
+
+    when(service.getOperationHistory(any())).thenReturn(List.of(row));
+
+    mockMvc.perform(get("/api/v1/quantities/history/operation/ADD"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].operation").value("add"));
   }
 
   @Test
-  public void testControllerHistory() {
-    controller.performConvert(new QuantityDTO(1, "LITRE"), "MILLILITRE");
-    controller.performDivide(new QuantityDTO(2, "FEET"), new QuantityDTO(24, "INCHES"));
+  void compareQuantities_InvalidInput_ReturnsBadRequest() throws Exception {
+    String payload = """
+        {
+          "thisQuantityDTO": {"value": 1.0, "unit": "FOOT", "measurementType": "LengthUnit"},
+          "thatQuantityDTO": {"value": 12.0, "unit": "INCHES", "measurementType": "LengthUnit"}
+        }
+        """;
 
-    assertEquals(2, controller.getOperationHistory().size());
+    mockMvc.perform(post("/api/v1/quantities/compare")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(payload))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("Quantity Measurement Error"));
   }
 }

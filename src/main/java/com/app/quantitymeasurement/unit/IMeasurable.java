@@ -15,7 +15,7 @@ public interface IMeasurable {
   }
 
   default String getMeasurementType() {
-    return getClass().getSimpleName().replace("Unit", "");
+    return getClass().getSimpleName();
   }
 
   default boolean supportsArithmetic() {
