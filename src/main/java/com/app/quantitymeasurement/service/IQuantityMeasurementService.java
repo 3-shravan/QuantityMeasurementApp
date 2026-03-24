@@ -1,27 +1,58 @@
 package com.app.quantitymeasurement.service;
 
-import com.app.quantitymeasurement.model.OperationType;
 import com.app.quantitymeasurement.model.QuantityDTO;
 import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
 import java.util.List;
 
 public interface IQuantityMeasurementService {
 
-  QuantityMeasurementDTO compareQuantities(QuantityDTO first, QuantityDTO second);
+  QuantityMeasurementDTO compare(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO);
 
-  QuantityMeasurementDTO convertQuantity(QuantityDTO source, QuantityDTO target);
+  QuantityMeasurementDTO convert(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO);
 
-  QuantityMeasurementDTO addQuantities(QuantityDTO first, QuantityDTO second);
+  QuantityMeasurementDTO add(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO);
 
-  QuantityMeasurementDTO subtractQuantities(QuantityDTO first, QuantityDTO second);
+  QuantityMeasurementDTO subtract(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO);
 
-  QuantityMeasurementDTO divideQuantities(QuantityDTO first, QuantityDTO second);
+  QuantityMeasurementDTO divide(QuantityDTO thisQuantityDTO, QuantityDTO thatQuantityDTO);
 
-  List<QuantityMeasurementDTO> getOperationHistory(OperationType operationType);
+  /**
+   * Retrieve the history of quantity measurement operations for a specific
+   * operation type.
+   *
+   * @param operation the type of operation for which to retrieve the history
+   *                  (e.g., "conversion", "comparison")
+   * @return a list of {@code QuantityMeasurementDTO} representing the history of
+   *         operations for the specified type
+   */
+  List<QuantityMeasurementDTO> getOperationHistory(String operation);
 
-  List<QuantityMeasurementDTO> getMeasurementTypeHistory(String measurementType);
+  /**
+   * Retrieve the history of quantity measurement operations for a specific
+   * measurement type.
+   *
+   * @param type the measurement type for which to retrieve the history (e.g.,
+   *             "length", "weight", "volume", "temperature")
+   * @return a list of {@code QuantityMeasurementDTO} representing the history
+   *         of operations for the specified type
+   */
+  List<QuantityMeasurementDTO> getMeasurementsByType(String type);
 
-  long getOperationCount(OperationType operationType);
+  /**
+   * Get the count of quantity measurement operations for a specific operation
+   * type.
+   *
+   * @param operation the type of operation for which to count operations
+   * @return the number of operations of the specified type
+   */
+  long getOperationCount(String operation);
 
-  List<QuantityMeasurementDTO> getErroredHistory();
+  /**
+   * Retrieve the history of quantity measurement operations that resulted in
+   * errors.
+   *
+   * @return a list of {@code QuantityMeasurementDTO} representing the history of
+   *         operations that resulted in errors
+   */
+  List<QuantityMeasurementDTO> getErrorHistory();
 }

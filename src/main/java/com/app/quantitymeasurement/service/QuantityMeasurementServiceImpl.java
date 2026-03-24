@@ -5,15 +5,15 @@ import com.app.quantitymeasurement.model.QuantityDTO;
 import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
 import com.app.quantitymeasurement.model.QuantityMeasurementEntity;
 import com.app.quantitymeasurement.model.QuantityModel;
+import com.app.quantitymeasurement.domain.quantity.Quantity;
 import com.app.quantitymeasurement.exception.QuantityMeasurementException;
-import com.app.quantitymeasurement.quantity.Quantity;
 import com.app.quantitymeasurement.repository.QuantityMeasurementRepository;
 import com.app.quantitymeasurement.unit.IMeasurable;
 import com.app.quantitymeasurement.unit.LengthUnit;
 import com.app.quantitymeasurement.unit.TemperatureUnit;
 import com.app.quantitymeasurement.unit.VolumeUnit;
 import com.app.quantitymeasurement.unit.WeightUnit;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +21,15 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Service
-public class QuantityMeasurementServiceImpl implements QuantityMeasurementService {
+@RequiredArgsConstructor
+public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
 
-  @Autowired
-  private QuantityMeasurementRepository repository;
+  private final QuantityMeasurementRepository repository;
 
   @Override
-  public QuantityMeasurementDTO compareQuantities(QuantityDTO first, QuantityDTO second) {
+  public QuantityMeasurementDTO compare(QuantityDTO first, QuantityDTO second) {
     OperationType operation = OperationType.COMPARE;
     try {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
@@ -45,7 +45,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
   }
 
   @Override
-  public QuantityMeasurementDTO convertQuantity(QuantityDTO source, QuantityDTO target) {
+  public QuantityMeasurementDTO convert(QuantityDTO source, QuantityDTO target) {
     OperationType operation = OperationType.CONVERT;
     try {
       QuantityModel<IMeasurable> from = convertDtoToModel(source, "Source quantity");
@@ -61,7 +61,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
   }
 
   @Override
-  public QuantityMeasurementDTO addQuantities(QuantityDTO first, QuantityDTO second) {
+  public QuantityMeasurementDTO add(QuantityDTO first, QuantityDTO second) {
     OperationType operation = OperationType.ADD;
     try {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
@@ -78,7 +78,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
   }
 
   @Override
-  public QuantityMeasurementDTO subtractQuantities(QuantityDTO first, QuantityDTO second) {
+  public QuantityMeasurementDTO subtract(QuantityDTO first, QuantityDTO second) {
     OperationType operation = OperationType.SUBTRACT;
     try {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
@@ -95,7 +95,7 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
   }
 
   @Override
-  public QuantityMeasurementDTO divideQuantities(QuantityDTO first, QuantityDTO second) {
+  public QuantityMeasurementDTO divide(QuantityDTO first, QuantityDTO second) {
     OperationType operation = OperationType.DIVIDE;
     try {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
@@ -114,22 +114,22 @@ public class QuantityMeasurementServiceImpl implements QuantityMeasurementServic
   }
 
   @Override
-  public List<QuantityMeasurementDTO> getOperationHistory(OperationType operationType) {
-    return QuantityMeasurementDTO.fromEntityList(repository.findByOperation(operationType.name().toLowerCase()));
+  public List<QuantityMeasurementDTO> getOperationHistory(String operation) {
+    return QuantityMeasurementDTO.fromEntityList(repository.findByOperation(operation));
   }
 
   @Override
-  public List<QuantityMeasurementDTO> getMeasurementTypeHistory(String measurementType) {
+  public List<QuantityMeasurementDTO> getMeasurementsByType(String measurementType) {
     return QuantityMeasurementDTO.fromEntityList(repository.findByThisMeasurementType(measurementType));
   }
 
   @Override
-  public long getOperationCount(OperationType operationType) {
-    return repository.countByOperationAndErrorFalse(operationType.name().toLowerCase());
+  public long getOperationCount(String operation) {
+    return repository.countByOperationAndErrorFalse(operation.toLowerCase());
   }
 
   @Override
-  public List<QuantityMeasurementDTO> getErroredHistory() {
+  public List<QuantityMeasurementDTO> getErrorHistory() {
     return QuantityMeasurementDTO.fromEntityList(repository.findByErrorTrue());
   }
 

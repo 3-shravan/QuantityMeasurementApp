@@ -8,7 +8,15 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuantityDTO {
 
   @NotNull(message = "Value is required")
@@ -22,48 +30,6 @@ public class QuantityDTO {
   private String measurementType;
 
   private OperationType operationType;
-
-  public QuantityDTO() {
-  }
-
-  public QuantityDTO(Double value, String unit, String measurementType, OperationType operationType) {
-    this.value = value;
-    this.unit = unit;
-    this.measurementType = measurementType;
-    this.operationType = operationType;
-  }
-
-  public Double getValue() {
-    return value;
-  }
-
-  public void setValue(Double value) {
-    this.value = value;
-  }
-
-  public String getUnit() {
-    return unit;
-  }
-
-  public void setUnit(String unit) {
-    this.unit = unit;
-  }
-
-  public String getMeasurementType() {
-    return measurementType;
-  }
-
-  public void setMeasurementType(String measurementType) {
-    this.measurementType = measurementType;
-  }
-
-  public OperationType getOperationType() {
-    return operationType;
-  }
-
-  public void setOperationType(OperationType operationType) {
-    this.operationType = operationType;
-  }
 
   @AssertTrue(message = "Unit must be valid for the specified measurement type")
   public boolean isUnitValidForMeasurementType() {

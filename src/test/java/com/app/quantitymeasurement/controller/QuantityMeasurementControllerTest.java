@@ -39,7 +39,7 @@ class QuantityMeasurementControllerTest {
         .error(false)
         .build();
 
-    when(service.compareQuantities(any(QuantityDTO.class), any(QuantityDTO.class))).thenReturn(response);
+    when(service.compare(any(QuantityDTO.class), any(QuantityDTO.class))).thenReturn(response);
 
     String payload = """
         {
@@ -55,7 +55,7 @@ class QuantityMeasurementControllerTest {
         .andExpect(jsonPath("$.operation").value("compare"))
         .andExpect(jsonPath("$.resultString").value("true"));
 
-    Mockito.verify(service).compareQuantities(any(QuantityDTO.class), any(QuantityDTO.class));
+    Mockito.verify(service).compare(any(QuantityDTO.class), any(QuantityDTO.class));
   }
 
   @Test

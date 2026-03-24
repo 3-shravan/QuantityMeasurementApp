@@ -1,6 +1,6 @@
 package com.app.quantitymeasurement.repository;
 
-import com.app.quantitymeasurement.entity.QuantityMeasurementEntity;
+import com.app.quantitymeasurement.model.QuantityMeasurementEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

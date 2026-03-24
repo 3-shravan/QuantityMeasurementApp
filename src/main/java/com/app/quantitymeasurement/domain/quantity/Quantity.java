@@ -1,4 +1,4 @@
-package com.app.quantitymeasurement.quantity;
+package com.app.quantitymeasurement.domain.quantity;
 
 import com.app.quantitymeasurement.unit.IMeasurable;
 
