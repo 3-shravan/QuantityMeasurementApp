@@ -29,7 +29,6 @@ public class QuantityMeasurementDTO {
   private String errorMessage;
   private boolean error;
   private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
 
   public static QuantityMeasurementDTO fromEntity(QuantityMeasurementEntity entity) {
     if (entity == null) {
@@ -52,7 +51,6 @@ public class QuantityMeasurementDTO {
         .errorMessage(entity.getErrorMessage())
         .error(entity.isError())
         .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
         .build();
   }
 
@@ -73,7 +71,6 @@ public class QuantityMeasurementDTO {
     entity.setErrorMessage(this.errorMessage);
     entity.setError(this.error);
     entity.setCreatedAt(this.createdAt);
-    entity.setUpdatedAt(this.updatedAt);
     return entity;
   }
 

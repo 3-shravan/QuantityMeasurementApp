@@ -14,8 +14,7 @@
     {
       "name": "Compare quantities",
       "request": {
-        "method": "POST",
-        "header": [
+        "method": "POST",         "header": [
           {
             "key": "Content-Type",
             "value": "application/json"
