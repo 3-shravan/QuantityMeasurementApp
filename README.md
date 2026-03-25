@@ -110,9 +110,35 @@ mvn test
 mvn clean package
 ```
 
+### Generate Surefire HTML test report
+
+```bash
+mvn surefire-report:report
+```
+
+Generated file:
+
+- `target/site/surefire-report.html`
+
 ---
 
-## 5) Useful URLs
+## 5) Test report features (Maven Surefire)
+
+The generated report includes:
+
+- execution summary (total, passed, failed/errors, skipped, success rate, time)
+- package/class/test-case level breakdown
+- per-test method status and execution time
+- failure details (error messages + stack traces when a test fails)
+- structured pages that make patterns and regressions easier to detect over time
+
+Tip:
+
+- for source-code navigation links in reports, use Maven site + xref setup (JXR) along with surefire reports.
+
+---
+
+## 6) Useful URLs
 
 After startup:
 
@@ -130,7 +156,7 @@ H2 default datasource from properties:
 
 ---
 
-## 6) API endpoints summary
+## 7) API endpoints summary
 
 | Method | Endpoint                                            | Description                     |
 | ------ | --------------------------------------------------- | ------------------------------- |
@@ -148,7 +174,7 @@ Full examples are in [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
 
 ---
 
-## 7) Project structure
+## 8) Project structure
 
 ```text
 src/main/java/com/app/quantitymeasurement
@@ -195,13 +221,13 @@ src/test/java/com/app/quantitymeasurement
 
 ---
 
-## 8) Notes about legacy UC16 files
+## 9) Notes about legacy UC16 files
 
 This workspace still contains some UC16 source/test files for reference. In `pom.xml`, compiler/surefire exclusions are configured so the active UC17 Spring Boot build compiles and runs the intended code path.
 
 ---
 
-## 9) Documentation map
+## 10) Documentation map
 
 - Architecture + execution flow: [docs/PROJECT_FLOW.md](docs/PROJECT_FLOW.md)
 - Full Spring theory used here: [docs/SPRING_THEORY_GUIDE.md](docs/SPRING_THEORY_GUIDE.md)
@@ -210,6 +236,6 @@ This workspace still contains some UC16 source/test files for reference. In `pom
 
 ---
 
-## 10) One-line explanation for interview/demo
+## 11) One-line explanation for interview/demo
 
 > This is a layered Spring Boot REST application where validated quantity inputs flow through Controller → Service → JPA Repository, with domain-safe unit math, centralized error handling, operation auditing in DB, OpenAPI docs, and test coverage at web and integration levels.
