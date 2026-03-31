@@ -91,6 +91,38 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(response);
   }
 
+  @ExceptionHandler(ValidationException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(
+      ValidationException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error("Validation Error")
+        .message(ex.getMessage())
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+      ResourceNotFoundException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.NOT_FOUND.value())
+        .error("Not Found")
+        .message(ex.getMessage())
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<ErrorResponse> handleNoResourceFoundException(
       NoResourceFoundException ex,

@@ -1,13 +1,13 @@
 package com.app.quantitymeasurement.controller;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Controller
+@RestController
 public class HomeController {
 
   @GetMapping("/")
   public String home() {
-    return "redirect:/swagger-ui.html";
+    return "Api is running...";
   }
 }
