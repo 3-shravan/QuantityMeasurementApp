@@ -1,241 +1,102 @@
-# Quantity Measurement App (UC17)
+# Quantity Measurement App - Work Log (Date-wise)
 
-A Spring Boot REST API for quantity operations (compare, convert, add, subtract, divide) with:
+This file is maintained as a personal progress log of the project, from day 1 to current state.
 
-- validation
-- centralized exception handling
-- persistence using Spring Data JPA
-- in-memory H2 database (dev default)
-- optional MySQL profile (prod)
-- Swagger/OpenAPI docs
-- Actuator endpoints
-- controller and integration tests
+## Project Start
+
+- **Start date:** 2026-02-18
+- **Latest recorded work:** 2026-03-25
+- **Primary branch:** `main`
+- **Development style:** Use-case driven branch strategy (`feature/UCx-*`)
 
 ---
 
-## 1) What this project does
+## Date-wise Development Log
 
-This application accepts two quantity inputs and performs unit-safe operations:
+### 2026-02-18
 
-- compare two quantities (example: `1 FEET` vs `12 INCHES`)
-- convert one quantity to target unit
-- add/subtract compatible quantities
-- divide compatible quantities
-- store operation history (including failures)
-- fetch history by operation type / measurement type / errors
-- return operation count by operation type
+- Initialized repository and created base project structure.
+- First commit completed (`a6dbbd9`).
 
-The API base path is:
+### 2026-02-19
 
-`/api/v1/quantities`
+- Completed **UC1 (Feet Equality)** in branch `feature/UC1-FeetEquality`.
+- Completed **UC2 (Inch Equality)** in branch `feature/UC2-InchEquality`.
+- Established early equality behavior for length measurements.
 
----
+### 2026-02-20
 
-## 2) High-level architecture
+- Completed **UC3 (Generic Length / Generic Quantity Class)** in branch `feature/UC3-GenericLength`.
+- Refactored toward reusable model using generic quantity concepts and DRY direction.
 
-The project follows a standard layered Spring architecture:
+### 2026-02-21
 
-1. **Controller layer**
-   - receives HTTP requests
-   - validates request DTOs
-   - delegates business logic to service
-   - returns structured response
+- Completed **UC4 (Yard Equality)** in branch `feature/UC4-YardEquality`.
+- Completed **UC5 (Unit Conversion)** in branch `feature/UC5-UnitConversion`.
+- Extended coverage of length unit combinations and conversion rules.
 
-2. **Service layer**
-   - core business rules
-   - unit compatibility checks
-   - quantity math via domain class
-   - maps operation results to entity/DTO
-   - persists success/failure history
+### 2026-03-10
 
-3. **Repository layer**
-   - Spring Data JPA repository interface
-   - query methods based on naming conventions
-   - custom JPQL query where needed
+- Added **UC6 (Unit Addition)** implementation.
+- Updated `.gitignore` in `dev` branch, then adjusted in `feature/UC6-UnitAddition`.
 
-4. **Model layer**
-   - request/response DTOs
-   - JPA entity (database mapped)
-   - enums and wrappers
+### 2026-03-11
 
-5. **Cross-cutting**
-   - security config (allow-all in current UC)
-   - global exception handling
-   - validation
-   - OpenAPI docs and actuator
+- Completed **UC7 (Target Unit Addition)** in `feature/UC7-TargetUnitAddition`.
+- Completed **UC8 (Standalone Unit Refactor)** in `feature/UC8-StandaloneUnit`.
+- Completed **UC9 (Weight Equality)** in `feature/UC9-WeightEquality`.
+- Completed **UC10 (Generic Quantity Extension)** in `feature/UC10-GenericQuantity`.
+- Completed **UC11 (Volume Equality)** in `feature/UC11-VolumeEquality`.
+- Completed **UC12 (Quantity Operations)** in `feature/UC12-QuantityOperations`.
+- This day was a major feature expansion day adding multi-domain measurement support.
 
-See details in [docs/PROJECT_FLOW.md](docs/PROJECT_FLOW.md).
+### 2026-03-13
 
----
+- Completed **UC13 (Enforce DRY)** in `feature/UC13-EnforceDRY`.
+- Completed **UC14 (Temperature Measurement)** in `feature/UC14-TemperatureMeasurement`.
+- Improved architecture reuse and introduced temperature conversion handling.
 
-## 3) Tech stack
+### 2026-03-17
 
-- Java 17
-- Spring Boot 3.4.3
-- Spring Web (REST)
-- Spring Validation (Jakarta Validation)
-- Spring Data JPA + Hibernate
-- Spring Security (basic foundation config)
-- H2 (dev), MySQL driver (prod)
-- Springdoc OpenAPI (Swagger UI)
-- Spring Boot Actuator
-- JUnit 5 + MockMvc + TestRestTemplate + Mockito
+- Completed **UC15 (N-Tier Architecture)** in `feature/UC15-N-Tier-Architecture`.
+- Added/refined tests for N-tier restructuring.
+- Completed **UC16 (JDBC Integration)** in `feature/UC16-JDBC`.
+- Updated persistence dependencies/configuration via `pom.xml` refactor.
 
-Dependency details are in [docs/SPRING_THEORY_GUIDE.md](docs/SPRING_THEORY_GUIDE.md).
+### 2026-03-19
+
+- Started **UC17 (Spring Backend)** implementation.
+- Began Spring Boot API-oriented backend version of Quantity Measurement App.
+
+### 2026-03-24
+
+- Refactored backend structure for cleaner layered organization.
+- Improved package layout and implementation flow.
+
+### 2026-03-25
+
+- Fixed entity field mismatch issue in UC17 backend.
+- Added/standardized Surefire report support and testing setup.
+- Brought final UC17 work to `main` (`02c4450`).
 
 ---
 
-## 4) Run locally
+## What Is Implemented in Current Codebase
 
-### Prerequisites
-
-- Java 17+
-- Maven 3.9+
-
-### Start app
-
-```bash
-mvn spring-boot:run
-```
-
-### Run tests
-
-```bash
-mvn test
-```
-
-### Build package
-
-```bash
-mvn clean package
-```
-
-### Generate Surefire HTML test report
-
-```bash
-mvn surefire-report:report
-```
-
-Generated file:
-
-- `target/site/surefire-report.html`
+- Spring Boot backend with REST endpoints for:
+  - compare, convert, add, subtract, divide
+  - operation/type/error history retrieval
+  - operation count endpoint
+- Domain-level generic quantity handling with reusable unit contracts.
+- Measurement categories implemented:
+  - Length, Weight, Volume, Temperature
+- Persistence layer with JPA repository and MySQL/H2 support.
+- Exception handling with standardized error response body.
+- OpenAPI/Swagger enabled documentation.
+- Security configuration allowing API and docs access.
+- Test setup includes:
+  - MVC controller tests
+  - Spring Boot integration tests
+  - Surefire reporting setup
 
 ---
-
-## 5) Test report features (Maven Surefire)
-
-The generated report includes:
-
-- execution summary (total, passed, failed/errors, skipped, success rate, time)
-- package/class/test-case level breakdown
-- per-test method status and execution time
-- failure details (error messages + stack traces when a test fails)
-- structured pages that make patterns and regressions easier to detect over time
-
-Tip:
-
-- for source-code navigation links in reports, use Maven site + xref setup (JXR) along with surefire reports.
-
----
-
-## 6) Useful URLs
-
-After startup:
-
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
-- H2 Console: `http://localhost:8080/h2-console`
-- Actuator Health: `http://localhost:8080/actuator/health`
-- Actuator Metrics: `http://localhost:8080/actuator/metrics`
-
-H2 default datasource from properties:
-
-- JDBC URL: `jdbc:h2:mem:quantitymeasurementdb`
-- username: `sa`
-- password: _(blank)_
-
----
-
-## 7) API endpoints summary
-
-| Method | Endpoint                                            | Description                     |
-| ------ | --------------------------------------------------- | ------------------------------- |
-| POST   | `/api/v1/quantities/compare`                        | Compare two quantities          |
-| POST   | `/api/v1/quantities/convert`                        | Convert quantity to target unit |
-| POST   | `/api/v1/quantities/add`                            | Add two quantities              |
-| POST   | `/api/v1/quantities/subtract`                       | Subtract two quantities         |
-| POST   | `/api/v1/quantities/divide`                         | Divide two quantities           |
-| GET    | `/api/v1/quantities/history/operation/{operation}`  | History by operation            |
-| GET    | `/api/v1/quantities/history/type/{measurementType}` | History by measurement type     |
-| GET    | `/api/v1/quantities/history/errored`                | Only failed operations          |
-| GET    | `/api/v1/quantities/count/{operation}`              | Count successful operations     |
-
-Full examples are in [docs/API_REFERENCE.md](docs/API_REFERENCE.md).
-
----
-
-## 8) Project structure
-
-```text
-src/main/java/com/app/quantitymeasurement
-  QuantityMeasurementApplication.java
-  config/
-    SecurityConfig.java
-  controller/
-    QuantityMeasurementController.java
-  exception/
-    ErrorResponse.java
-    GlobalExceptionHandler.java
-    QuantityMeasurementException.java
-  model/
-    OperationType.java
-    QuantityDTO.java
-    QuantityInputDTO.java
-    QuantityMeasurementDTO.java
-    QuantityMeasurementEntity.java
-    QuantityModel.java
-  quantity/
-    Quantity.java
-  repository/
-    QuantityMeasurementRepository.java
-  service/
-    IQuantityMeasurementService.java
-    QuantityMeasurementService.java
-    QuantityMeasurementServiceImpl.java
-  unit/
-    IMeasurable.java
-    LengthUnit.java
-    VolumeUnit.java
-    WeightUnit.java
-    TemperatureUnit.java
-
-src/main/resources
-  application.properties
-  application-prod.properties
-
-src/test/java/com/app/quantitymeasurement
-  QuantityMeasurementApplicationTests.java
-  controller/QuantityMeasurementControllerTest.java
-  integrationTests/QuantityMeasurementIntegrationTest.java
-```
-
----
-
-## 9) Notes about legacy UC16 files
-
-This workspace still contains some UC16 source/test files for reference. In `pom.xml`, compiler/surefire exclusions are configured so the active UC17 Spring Boot build compiles and runs the intended code path.
-
----
-
-## 10) Documentation map
-
-- Architecture + execution flow: [docs/PROJECT_FLOW.md](docs/PROJECT_FLOW.md)
-- Full Spring theory used here: [docs/SPRING_THEORY_GUIDE.md](docs/SPRING_THEORY_GUIDE.md)
-- Endpoint examples and payloads: [docs/API_REFERENCE.md](docs/API_REFERENCE.md)
-- Testing strategy and report generation: [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
-
----
-
-## 11) One-line explanation for interview/demo
-
-> This is a layered Spring Boot REST application where validated quantity inputs flow through Controller → Service → JPA Repository, with domain-safe unit math, centralized error handling, operation auditing in DB, OpenAPI docs, and test coverage at web and integration levels.
