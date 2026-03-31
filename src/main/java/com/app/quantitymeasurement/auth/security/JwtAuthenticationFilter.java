@@ -1,4 +1,4 @@
-package com.app.quantitymeasurement.security;
+package com.app.quantitymeasurement.auth.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,7 +1,7 @@
-package com.app.quantitymeasurement.security;
+package com.app.quantitymeasurement.auth.security;
 
-import com.app.quantitymeasurement.domain.User;
-import com.app.quantitymeasurement.repository.UserRepository;
+import com.app.quantitymeasurement.auth.entity.User;
+import com.app.quantitymeasurement.auth.repository.UserRepository;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

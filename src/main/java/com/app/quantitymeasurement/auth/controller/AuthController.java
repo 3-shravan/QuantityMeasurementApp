@@ -1,10 +1,13 @@
-package com.app.quantitymeasurement.controller;
+package com.app.quantitymeasurement.auth.controller;
 
-import com.app.quantitymeasurement.model.JwtAuthenticationResponse;
-import com.app.quantitymeasurement.model.LoginRequest;
-import com.app.quantitymeasurement.model.LogoutResponse;
-import com.app.quantitymeasurement.model.SignUpRequest;
-import com.app.quantitymeasurement.service.AuthService;
+import com.app.quantitymeasurement.auth.dto.JwtAuthenticationResponse;
+import com.app.quantitymeasurement.auth.dto.LoginRequest;
+import com.app.quantitymeasurement.auth.dto.LogoutResponse;
+import com.app.quantitymeasurement.auth.dto.OAuth2LoginRequest;
+import com.app.quantitymeasurement.auth.dto.OAuth2UserInfo;
+import com.app.quantitymeasurement.auth.dto.SignUpRequest;
+import com.app.quantitymeasurement.auth.service.AuthService;
+import com.app.quantitymeasurement.auth.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +30,9 @@ public class AuthController {
 
   @Autowired
   private AuthService authService;
+
+  @Autowired
+  private OAuth2Service oauth2Service;
 
   @PostMapping("/login")
   @Operation(summary = "Login user", description = "Authenticate user with username and password, returns JWT token")
@@ -57,6 +63,14 @@ public class AuthController {
         .username(username)
         .build();
 
+    return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/oauth2/google")
+  @Operation(summary = "Login with Google", description = "Authenticate user with Google OAuth 2 access token")
+  public ResponseEntity<JwtAuthenticationResponse> loginWithGoogle(@Valid @RequestBody OAuth2LoginRequest request) {
+    OAuth2UserInfo userInfo = oauth2Service.getGoogleUserInfo(request.getAccessToken());
+    JwtAuthenticationResponse response = oauth2Service.loginOrRegisterOAuth2User(userInfo);
     return ResponseEntity.ok(response);
   }
 }

@@ -1,13 +1,13 @@
-package com.app.quantitymeasurement.service;
+package com.app.quantitymeasurement.auth.service;
 
-import com.app.quantitymeasurement.domain.User;
+import com.app.quantitymeasurement.auth.dto.JwtAuthenticationResponse;
+import com.app.quantitymeasurement.auth.dto.LoginRequest;
+import com.app.quantitymeasurement.auth.dto.SignUpRequest;
+import com.app.quantitymeasurement.auth.entity.User;
+import com.app.quantitymeasurement.auth.repository.UserRepository;
+import com.app.quantitymeasurement.auth.security.JwtTokenProvider;
 import com.app.quantitymeasurement.exception.ResourceNotFoundException;
 import com.app.quantitymeasurement.exception.ValidationException;
-import com.app.quantitymeasurement.model.JwtAuthenticationResponse;
-import com.app.quantitymeasurement.model.LoginRequest;
-import com.app.quantitymeasurement.model.SignUpRequest;
-import com.app.quantitymeasurement.repository.UserRepository;
-import com.app.quantitymeasurement.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

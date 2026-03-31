@@ -1,4 +1,4 @@
-package com.app.quantitymeasurement.model;
+package com.app.quantitymeasurement.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

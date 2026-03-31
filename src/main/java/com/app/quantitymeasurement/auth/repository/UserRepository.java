@@ -1,6 +1,6 @@
-package com.app.quantitymeasurement.repository;
+package com.app.quantitymeasurement.auth.repository;
 
-import com.app.quantitymeasurement.domain.User;
+import com.app.quantitymeasurement.auth.entity.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

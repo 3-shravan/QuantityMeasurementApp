@@ -1,4 +1,4 @@
-package com.app.quantitymeasurement.security;
+package com.app.quantitymeasurement.auth.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

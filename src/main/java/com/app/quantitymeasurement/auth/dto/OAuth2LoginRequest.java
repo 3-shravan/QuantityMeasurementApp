@@ -1,4 +1,4 @@
-package com.app.quantitymeasurement.model;
+package com.app.quantitymeasurement.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LogoutResponse {
-  private String message;
-  private boolean success;
-  private String username;
+public class OAuth2LoginRequest {
+  private String provider;
+  private String accessToken;
 }
