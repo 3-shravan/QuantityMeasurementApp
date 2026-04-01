@@ -8,6 +8,7 @@ import com.app.quantitymeasurement.model.QuantityModel;
 import com.app.quantitymeasurement.domain.quantity.Quantity;
 import com.app.quantitymeasurement.exception.QuantityMeasurementException;
 import com.app.quantitymeasurement.repository.QuantityMeasurementRepository;
+import com.app.quantitymeasurement.security.SecurityUtil;
 import com.app.quantitymeasurement.unit.IMeasurable;
 import com.app.quantitymeasurement.unit.LengthUnit;
 import com.app.quantitymeasurement.unit.TemperatureUnit;
@@ -27,6 +28,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
   private static final Logger LOGGER = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
 
   private final QuantityMeasurementRepository repository;
+  private final SecurityUtil securityUtil;
 
   @Override
   public QuantityMeasurementDTO compare(QuantityDTO first, QuantityDTO second) {
@@ -115,22 +117,46 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
   @Override
   public List<QuantityMeasurementDTO> getOperationHistory(String operation) {
-    return QuantityMeasurementDTO.fromEntityList(repository.findByOperation(operation));
+    Long userId = securityUtil.getCurrentUserId();
+    if (userId != null) {
+      return QuantityMeasurementDTO.fromEntityList(repository.findByOperationAndUserId(operation, userId));
+    }
+    // If not authenticated, return empty list (history only for authenticated
+    // users)
+    return List.of();
   }
 
   @Override
   public List<QuantityMeasurementDTO> getMeasurementsByType(String measurementType) {
-    return QuantityMeasurementDTO.fromEntityList(repository.findByThisMeasurementType(measurementType));
+    Long userId = securityUtil.getCurrentUserId();
+    if (userId != null) {
+      return QuantityMeasurementDTO
+          .fromEntityList(repository.findByThisMeasurementTypeAndUserId(measurementType, userId));
+    }
+    // If not authenticated, return empty list (history only for authenticated
+    // users)
+    return List.of();
   }
 
   @Override
   public long getOperationCount(String operation) {
-    return repository.countByOperationAndErrorFalse(operation.toLowerCase());
+    Long userId = securityUtil.getCurrentUserId();
+    if (userId != null) {
+      return repository.countByOperationAndErrorFalseAndUserId(operation.toLowerCase(), userId);
+    }
+    // If not authenticated, return 0 (history only for authenticated users)
+    return 0L;
   }
 
   @Override
   public List<QuantityMeasurementDTO> getErrorHistory() {
-    return QuantityMeasurementDTO.fromEntityList(repository.findByErrorTrue());
+    Long userId = securityUtil.getCurrentUserId();
+    if (userId != null) {
+      return QuantityMeasurementDTO.fromEntityList(repository.findByErrorTrueAndUserId(userId));
+    }
+    // If not authenticated, return empty list (history only for authenticated
+    // users)
+    return List.of();
   }
 
   private QuantityMeasurementDTO persistSuccess(OperationType operation, QuantityDTO first, QuantityDTO second,
@@ -148,6 +174,8 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     entity.setResultUnit(resultUnit);
     entity.setResultMeasurementType(resultMeasurementType);
     entity.setError(false);
+    // Only save history for authenticated users
+    entity.setUserId(securityUtil.getCurrentUserId());
     return QuantityMeasurementDTO.fromEntity(repository.save(entity));
   }
 
@@ -163,6 +191,8 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     entity.setOperation(operation.name().toLowerCase());
     entity.setError(true);
     entity.setErrorMessage(errorMessage);
+    // Only save error history for authenticated users
+    entity.setUserId(securityUtil.getCurrentUserId());
     repository.save(entity);
   }
 

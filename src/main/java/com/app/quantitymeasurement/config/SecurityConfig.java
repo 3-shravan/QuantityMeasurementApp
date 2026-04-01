@@ -53,6 +53,7 @@ public class SecurityConfig {
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/v1/auth/**").permitAll()
+            .requestMatchers("/api/v1/quantities/**").permitAll()
             .anyRequest()
             .authenticated())
         .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
