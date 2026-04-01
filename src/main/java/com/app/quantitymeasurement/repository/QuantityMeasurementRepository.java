@@ -22,4 +22,17 @@ public interface QuantityMeasurementRepository extends JpaRepository<QuantityMea
   long countByOperationAndErrorFalse(String operation);
 
   List<QuantityMeasurementEntity> findByErrorTrue();
+
+  // User-specific queries
+  List<QuantityMeasurementEntity> findByOperationAndUserId(String operation, Long userId);
+
+  List<QuantityMeasurementEntity> findByThisMeasurementTypeAndUserId(String measurementType, Long userId);
+
+  @Query("SELECT q FROM QuantityMeasurementEntity q WHERE q.error = true AND q.userId = ?1")
+  List<QuantityMeasurementEntity> findByErrorTrueAndUserId(Long userId);
+
+  @Query("SELECT q FROM QuantityMeasurementEntity q WHERE q.operation = ?1 AND q.error = false AND q.userId = ?2")
+  List<QuantityMeasurementEntity> findSuccessfulByOperationAndUserId(String operation, Long userId);
+
+  long countByOperationAndErrorFalseAndUserId(String operation, Long userId);
 }

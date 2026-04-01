@@ -18,7 +18,8 @@ import lombok.Setter;
 @Table(name = "quantity_measurement_entity", indexes = {
     @Index(name = "idx_qme_operation", columnList = "operation"),
     @Index(name = "idx_qme_this_measurement_type", columnList = "this_measurement_type"),
-    @Index(name = "idx_qme_created_at", columnList = "created_at")
+    @Index(name = "idx_qme_created_at", columnList = "created_at"),
+    @Index(name = "idx_qme_user_id", columnList = "user_id")
 })
 @Getter
 @Setter
@@ -68,6 +69,9 @@ public class QuantityMeasurementEntity {
 
   @Column(name = "is_error", nullable = false)
   private boolean error;
+
+  @Column(name = "user_id")
+  private Long userId;
 
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
