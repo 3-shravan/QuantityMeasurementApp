@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -137,6 +139,38 @@ public class GlobalExceptionHandler {
         .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ErrorResponse> handleBadCredentialsException(
+      BadCredentialsException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.UNAUTHORIZED.value())
+        .error("Unauthorized")
+        .message("Invalid username or password")
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<ErrorResponse> handleAuthenticationException(
+      AuthenticationException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.UNAUTHORIZED.value())
+        .error("Unauthorized")
+        .message("Authentication failed")
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
   }
 
   @ExceptionHandler(Exception.class)

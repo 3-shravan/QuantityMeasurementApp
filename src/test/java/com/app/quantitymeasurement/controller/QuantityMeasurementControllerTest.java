@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.app.quantitymeasurement.config.SecurityConfig;
 import com.app.quantitymeasurement.exception.QuantityMeasurementException;
+import com.app.quantitymeasurement.auth.security.JwtAuthenticationFilter;
 import com.app.quantitymeasurement.model.QuantityDTO;
 import com.app.quantitymeasurement.model.QuantityInputDTO;
 import com.app.quantitymeasurement.model.QuantityMeasurementDTO;
@@ -22,15 +22,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(QuantityMeasurementController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(SecurityConfig.class)
 class QuantityMeasurementControllerTest {
 
   @Autowired
@@ -39,8 +37,11 @@ class QuantityMeasurementControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @MockBean
+  @MockitoBean
   private IQuantityMeasurementService service;
+
+  @MockitoBean
+  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
   private QuantityInputDTO quantityInput;
   private QuantityMeasurementDTO measurementResult;
@@ -95,7 +96,7 @@ class QuantityMeasurementControllerTest {
 
   @Test
   void testGetOperationHistory_Success() throws Exception {
-    when(service.getOperationHistory(eq("compare"))).thenReturn(List.of());
+    when(service.getOperationHistory(eq("add"))).thenReturn(List.of());
 
     mockMvc.perform(get("/api/v1/quantities/history/operation/ADD"))
         .andExpect(status().isOk())

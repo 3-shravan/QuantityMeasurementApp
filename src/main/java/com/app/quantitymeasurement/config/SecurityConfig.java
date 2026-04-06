@@ -28,7 +28,7 @@ public class SecurityConfig {
   @Autowired
   private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-  @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:5174}")
+  @Value("${app.cors.allowed-origins}")
   private String allowedOrigins;
 
   @Bean
@@ -58,9 +58,8 @@ public class SecurityConfig {
                 "/error",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
-                "/v3/api-docs/**",
                 "/h2-console/**",
-                "/actuator/**")
+                "/v3/api-docs/**","/actuator/**")
             .permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/v1/auth/**").permitAll()

@@ -9,8 +9,6 @@ This file is maintained as a personal progress log of the project, from day 1 to
 - **Primary branch:** `main`
 - **Development style:** Use-case driven branch strategy (`feature/UCx-*`)
 
----
-
 ## Date-wise Development Log
 
 ### 2026-02-18
@@ -100,3 +98,4 @@ This file is maintained as a personal progress log of the project, from day 1 to
   - Surefire reporting setup
 
 ---
+

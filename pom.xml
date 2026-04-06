@@ -44,6 +44,10 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.mysql</groupId>
@@ -142,9 +146,14 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <systemPropertyVariables>
+            <spring.profiles.active>test</spring.profiles.active>
+          </systemPropertyVariables>
+          <forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
           <includes>
             <include>**/QuantityMeasurementApplicationTests.java</include>
             <include>**/controller/QuantityMeasurementControllerTest.java</include>
+            <include>**/controller/AuthControllerTest.java</include>
             <include>**/integrationTests/QuantityMeasurementIntegrationTest.java</include>
           </includes>
         </configuration>
