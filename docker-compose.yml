@@ -1,29 +1,6 @@
 version: "3.9"
 
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: quantitymeasurement-mysql
-    restart: unless-stopped
-
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-quantitymeasurement}
-      MYSQL_USER: ${DB_USERNAME:-app_user}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-strong_password}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-
-    ports:
-      - "3306:3306"
-
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USERNAME:-app_user}", "-p${DB_PASSWORD:-strong_password}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build:
       context: .
@@ -32,20 +9,15 @@ services:
     container_name: quantitymeasurement-app
     restart: unless-stopped
 
-    depends_on:
-      mysql:
-        condition: service_healthy
-
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SPRING_PROFILES_ACTIVE: prod
 
-      # ✅ SINGLE SOURCE OF TRUTH (IMPORTANT)
-      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-quantitymeasurement}?useSSL=false&serverTimezone=UTC
+      # AIVEN DATABASE
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
 
-      DB_USERNAME: ${DB_USERNAME:-app_user}
-      DB_PASSWORD: ${DB_PASSWORD:-strong_password}
-
-      DB_DDL_AUTO: ${DB_DDL_AUTO:-update}
+      DB_DDL_AUTO: update
 
       # JWT
       JWT_SECRET: ${JWT_SECRET}
@@ -54,13 +26,10 @@ services:
       # OAuth
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:8080/login/oauth2/code/google}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
 
       # CORS
-      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
 
     ports:
-      - "8080:8080"
-
-volumes:
-  mysql_data:
+      - "${PORT:-8080}:8080"
