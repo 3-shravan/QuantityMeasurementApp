@@ -1,0 +1,29 @@
+### Eureka Server checks
+### Scope: registry and service discovery visibility
+
+@eurekaBase = http://localhost:8761
+
+### 1) Eureka UI reachable (expect 200)
+GET {{eurekaBase}}
+Accept: text/html
+
+###
+### 2) All registered apps (expect 200)
+GET {{eurekaBase}}/eureka/apps
+Accept: application/json
+
+###
+### 3) Auth service registration (expect 200 when auth-service is running)
+GET {{eurekaBase}}/eureka/apps/AUTH-SERVICE
+Accept: application/json
+
+###
+### 4) API Gateway registration (expect 200 when gateway is running)
+GET {{eurekaBase}}/eureka/apps/API-GATEWAY
+Accept: application/json
+
+###
+### 5) Quantity/monolith registration (expect 200 only when monolith is running and registered)
+GET {{eurekaBase}}/eureka/apps/QUANTITY-MEASUREMENT-APP
+Accept: application/json
+

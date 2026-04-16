@@ -1,4 +1,76 @@
+# API Gateway Development Configuration
+# Uses service discovery with Eureka
+
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8080}
 
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Enable automatic route discovery from Eureka
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+  # Redis for development
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+    instance-info-replication-interval-seconds: 10
+
+# Service Configuration (from Eureka discovery)
+app:
+  services:
+    quantity:
+      name: quantity-service
+    auth:
+      name: auth-service
+  gateway:
+    retry:
+      retries: 2
+    ratelimit:
+      auth:
+        replenish-rate: 20    # 20 requests per second
+        burst-capacity: 40    # Allow bursts up to 40
+      quantity:
+        replenish-rate: 30    # 30 requests per second
+        burst-capacity: 60    # Allow bursts up to 60
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    com.app.apigateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Management Endpoints
+management:
+  health:
+    redis:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,info,gateway,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

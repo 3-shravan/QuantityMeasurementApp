@@ -1,0 +1,59 @@
+### Minimal 8-step smoke test for local microservices
+### Run in order.
+
+@baseEureka = http://localhost:8761
+@baseGateway = http://localhost:8081
+@baseMonolith = http://localhost:8080
+@smokeUser = smoke_gateway_user
+@smokeEmail = smoke_gateway_user@example.com
+@smokePassword = TestPassword123
+
+### 1) Eureka UI reachable (expect 200)
+GET {{baseEureka}}
+
+###
+### 2) Auth service registered in Eureka (expect 200)
+GET {{baseEureka}}/eureka/apps/AUTH-SERVICE
+
+###
+### 3) API Gateway registered in Eureka (expect 200)
+GET {{baseEureka}}/eureka/apps/API-GATEWAY
+
+###
+### 4) API Gateway health (expect 200)
+GET {{baseGateway}}/actuator/health
+
+###
+### 5) Monolith health (expect 200)
+GET {{baseMonolith}}/actuator/health
+
+###
+### 6) Register user through gateway (expect 201 first run, 409 if already exists)
+POST {{baseGateway}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "{{smokeUser}}",
+  "email": "{{smokeEmail}}",
+  "password": "{{smokePassword}}"
+}
+
+###
+### 7) Login through gateway (expect 200)
+POST {{baseGateway}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{smokeUser}}",
+  "password": "{{smokePassword}}"
+}
+
+> {%
+client.global.set("jwt", response.body.token);
+%}
+
+###
+### 8) Quantity route through gateway with token (expect 200)
+GET {{baseGateway}}/api/v1/quantities/history/errored
+Authorization: Bearer {{jwt}}
+

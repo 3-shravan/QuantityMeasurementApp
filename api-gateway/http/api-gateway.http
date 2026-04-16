@@ -1,0 +1,67 @@
+### API Gateway checks
+### Scope: gateway actuator + gateway auth route forwarding
+
+@gatewayBase = http://localhost:8080
+@contentType = application/json
+
+# Keep these unique when rerunning.
+@username = gateway_user_{{$timestamp}}
+@email = gateway_user_{{$timestamp}}@example.com
+@password = TestPassword123
+
+### 1) Gateway health (expect 200)
+GET {{gatewayBase}}/actuator/health
+Accept: application/json
+
+###
+### 2) Gateway routes (expect 200)
+GET {{gatewayBase}}/actuator/gateway/routes
+Accept: application/json
+
+###
+### 3) Gateway route filters (expect 200)
+GET {{gatewayBase}}/actuator/gateway/routefilters
+Accept: application/json
+
+###
+### 4) Register via gateway -> auth-service (expect 201)
+POST {{gatewayBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.global.set("gatewayAuthToken", response.body.token);
+%}
+
+###
+### 5) Login via gateway -> auth-service (expect 200)
+POST {{gatewayBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.global.set("gatewayAuthToken", response.body.token);
+%}
+
+###
+### 6) Logout via gateway with token (expect 200)
+POST {{gatewayBase}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{gatewayAuthToken}}
+
+{}
+
+###
+### 7) Quantity route check via gateway (expected 200 only when quantity service is up)
+GET {{gatewayBase}}/api/v1/quantities
+Authorization: Bearer {{gatewayAuthToken}}
+

@@ -1,4 +1,11 @@
-com\app\apigateway\config\GatewaySecurityAndRateLimitConfig.class
+com\app\apigateway\filter\AuthenticationGatewayFilter.class
 com\app\apigateway\controller\GatewayFallbackController.class
-com\app\apigateway\filter\JwtRelayGlobalFilter.class
+com\app\apigateway\config\GatewayConfigProperties$Service.class
 com\app\apigateway\ApiGatewayApplication.class
+com\app\apigateway\config\GatewayConfigProperties$RateLimit.class
+com\app\apigateway\config\GatewaySecurityAndRateLimitConfig.class
+com\app\apigateway\config\GatewayConfigProperties$Services.class
+com\app\apigateway\config\GatewayConfigProperties.class
+com\app\apigateway\config\GatewayConfigProperties$Gateway.class
+com\app\apigateway\config\GatewayConfigProperties$Retry.class
+com\app\apigateway\filter\JwtRelayGlobalFilter.class

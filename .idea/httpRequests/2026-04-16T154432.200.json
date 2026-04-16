@@ -1,0 +1,100 @@
+{
+  "applications": {
+    "versions__delta": "1",
+    "apps__hashcode": "UP_2_",
+    "application": [
+      {
+        "name": "API-GATEWAY",
+        "instance": [
+          {
+            "instanceId": "Latitude:api-gateway:8080",
+            "hostName": "Latitude",
+            "app": "API-GATEWAY",
+            "ipAddr": "172.16.189.57",
+            "status": "UP",
+            "overriddenStatus": "UNKNOWN",
+            "port": {
+              "$": 8080,
+              "@enabled": "true"
+            },
+            "securePort": {
+              "$": 443,
+              "@enabled": "false"
+            },
+            "countryId": 1,
+            "dataCenterInfo": {
+              "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+              "name": "MyOwn"
+            },
+            "leaseInfo": {
+              "renewalIntervalInSecs": 30,
+              "durationInSecs": 90,
+              "registrationTimestamp": 1776334414376,
+              "lastRenewalTimestamp": 1776334534357,
+              "evictionTimestamp": 0,
+              "serviceUpTimestamp": 1776334326488
+            },
+            "metadata": {
+              "management.port": "8080"
+            },
+            "homePageUrl": "http://Latitude:8080/",
+            "statusPageUrl": "http://Latitude:8080/actuator/info",
+            "healthCheckUrl": "http://Latitude:8080/actuator/health",
+            "vipAddress": "api-gateway",
+            "secureVipAddress": "api-gateway",
+            "isCoordinatingDiscoveryServer": "false",
+            "lastUpdatedTimestamp": "1776334414376",
+            "lastDirtyTimestamp": "1776334414328",
+            "actionType": "ADDED"
+          }
+        ]
+      },
+      {
+        "name": "AUTH-SERVICE",
+        "instance": [
+          {
+            "instanceId": "Latitude:auth-service:8081",
+            "hostName": "Latitude",
+            "app": "AUTH-SERVICE",
+            "ipAddr": "172.16.189.57",
+            "status": "UP",
+            "overriddenStatus": "UNKNOWN",
+            "port": {
+              "$": 8081,
+              "@enabled": "true"
+            },
+            "securePort": {
+              "$": 443,
+              "@enabled": "false"
+            },
+            "countryId": 1,
+            "dataCenterInfo": {
+              "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+              "name": "MyOwn"
+            },
+            "leaseInfo": {
+              "renewalIntervalInSecs": 30,
+              "durationInSecs": 90,
+              "registrationTimestamp": 1776334442085,
+              "lastRenewalTimestamp": 1776334442085,
+              "evictionTimestamp": 0,
+              "serviceUpTimestamp": 1776334442085
+            },
+            "metadata": {
+              "management.port": "8081"
+            },
+            "homePageUrl": "http://Latitude:8081/",
+            "statusPageUrl": "http://Latitude:8081/actuator/info",
+            "healthCheckUrl": "http://Latitude:8081/actuator/health",
+            "vipAddress": "auth-service",
+            "secureVipAddress": "auth-service",
+            "isCoordinatingDiscoveryServer": "false",
+            "lastUpdatedTimestamp": "1776334442085",
+            "lastDirtyTimestamp": "1776334442014",
+            "actionType": "ADDED"
+          }
+        ]
+      }
+    ]
+  }
+}

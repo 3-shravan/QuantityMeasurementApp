@@ -1,0 +1,468 @@
+### ========================================
+### MICROSERVICES API TEST FILE
+### ========================================
+### This file contains comprehensive tests for all microservices
+### Tests: Eureka Server, Auth Service, API Gateway, and Monolith
+###
+### Instructions:
+### 1. Start Eureka Server:   cd eureka-server && mvn spring-boot:run
+### 2. Start Auth Service:    cd auth-service && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+### 3. Start API Gateway:     cd api-gateway && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+### 4. Start Monolith:        cd monolith && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+### 5. Ensure Redis is running locally (for API Gateway rate limiting)
+###
+### Variables (set these after getting token):
+### @authToken =
+### @username = testuser001
+### @email = testuser001@example.com
+### ========================================
+
+### ========================================
+### 1. EUREKA SERVER HEALTH CHECK
+### ========================================
+
+GET http://localhost:8761
+Accept: application/json
+
+###
+GET http://localhost:8761/eureka/apps
+Accept: application/json
+
+###
+GET http://localhost:8761/eureka/apps/AUTH-SERVICE
+Accept: application/json
+
+###
+GET http://localhost:8761/eureka/apps/API-GATEWAY
+Accept: application/json
+
+###
+GET http://localhost:8761/eureka/apps/QUANTITY-MEASUREMENT-APP
+Accept: application/json
+
+### ========================================
+### 2. SERVICES HEALTH CHECKS
+### ========================================
+
+### Auth Service Health
+GET http://localhost:8082/actuator/health
+Accept: application/json
+
+###
+
+### API Gateway Health
+GET http://localhost:8081/actuator/health
+Accept: application/json
+
+###
+
+### Monolith Health
+GET http://localhost:8080/actuator/health
+Accept: application/json
+
+### ========================================
+### 3. AUTH SERVICE - USER REGISTRATION
+### ========================================
+
+### Register Test User 1
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "email": "testuser001@example.com",
+  "password": "TestPassword123"
+}
+
+###
+
+### Register Test User 2
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser002",
+  "email": "testuser002@example.com",
+  "password": "TestPassword123"
+}
+
+###
+
+### Register Test User 3
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser003",
+  "email": "testuser003@example.com",
+  "password": "TestPassword123"
+}
+
+### ========================================
+### 4. AUTH SERVICE - USER LOGIN (Direct)
+### ========================================
+
+### Login Test User 1
+POST http://localhost:8082/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "password": "TestPassword123"
+}
+
+###
+
+### Login Test User 2
+POST http://localhost:8082/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser002",
+  "password": "TestPassword123"
+}
+
+###
+
+### Login Test User 3
+POST http://localhost:8082/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser003",
+  "password": "TestPassword123"
+}
+
+### ========================================
+### 5. AUTH SERVICE - USER LOGIN (Via API Gateway)
+### ========================================
+
+### Login via API Gateway
+POST http://localhost:8081/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "password": "TestPassword123"
+}
+
+###
+
+### ========================================
+### 6. AUTH SERVICE - REGISTER VIA API GATEWAY
+### ========================================
+
+### Register via API Gateway
+POST http://localhost:8081/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "gatewaytestuser",
+  "email": "gateway@example.com",
+  "password": "GatewayPassword123"
+}
+
+###
+
+### ========================================
+### 7. MONOLITH - QUANTITY ENDPOINTS (Direct, No Auth)
+### ========================================
+
+### Get All Quantities (should require auth)
+GET http://localhost:8080/api/v1/quantities
+Content-Type: application/json
+
+###
+
+### ========================================
+### 8. MONOLITH - QUANTITY ENDPOINTS (Via API Gateway)
+### ========================================
+
+### Get All Quantities via Gateway (requires token)
+GET http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+Authorization: Bearer
+
+###
+
+### Create Quantity via Gateway (requires token)
+POST http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "quantityName": "Length",
+  "quantityUnit": "Meter"
+}
+
+###
+
+### Create Another Quantity via Gateway
+POST http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "quantityName": "Weight",
+  "quantityUnit": "Kilogram"
+}
+
+###
+
+### Create Another Quantity
+POST http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "quantityName": "Temperature",
+  "quantityUnit": "Celsius"
+}
+
+###
+
+### Get Quantity by ID via Gateway
+GET http://localhost:8081/api/v1/quantities/1
+Content-Type: application/json
+Authorization: Bearer
+
+###
+
+### Update Quantity via Gateway
+PUT http://localhost:8081/api/v1/quantities/1
+Content-Type: application/json
+Authorization: Bearer
+
+{
+  "quantityName": "Length Updated",
+  "quantityUnit": "Centimeter"
+}
+
+###
+
+### Delete Quantity via Gateway
+DELETE http://localhost:8081/api/v1/quantities/1
+Content-Type: application/json
+Authorization: Bearer
+
+###
+
+### ========================================
+### 9. AUTH SERVICE - LOGOUT
+### ========================================
+
+### Logout via API Gateway
+POST http://localhost:8081/api/v1/auth/logout
+Content-Type: application/json
+Authorization: Bearer
+
+{}
+
+###
+
+### Logout Direct
+POST http://localhost:8082/api/v1/auth/logout
+Content-Type: application/json
+Authorization: Bearer
+
+{}
+
+###
+
+### ========================================
+### 10. MONOLITH - SWAGGER/API DOCS
+### ========================================
+
+### Monolith Swagger UI
+GET http://localhost:8080/swagger-ui.html
+Accept: text/html
+
+###
+
+### Auth Service Swagger UI
+GET http://localhost:8082/swagger-ui.html
+Accept: text/html
+
+###
+
+### ========================================
+### 11. GATEWAY ACTUATOR ENDPOINTS
+### ========================================
+
+### Gateway Routes
+GET http://localhost:8081/actuator/gateway/routes
+Accept: application/json
+
+###
+
+### Gateway Route Details
+GET http://localhost:8081/actuator/gateway/routefilters
+Accept: application/json
+
+###
+
+### Gateway Metrics
+GET http://localhost:8081/actuator/metrics
+Accept: application/json
+
+###
+
+### HTTP Server Requests Metrics
+GET http://localhost:8081/actuator/metrics/http.server.requests
+Accept: application/json
+
+###
+
+### ========================================
+### 12. ERROR HANDLING TESTS
+### ========================================
+
+### Invalid Login Credentials
+POST http://localhost:8082/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "nonexistent",
+  "password": "wrongpassword"
+}
+
+###
+
+### Register Duplicate Username
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser001",
+  "email": "another@example.com",
+  "password": "AnotherPassword123"
+}
+
+###
+
+### Duplicate Email
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "anotheruser",
+  "email": "testuser001@example.com",
+  "password": "AnotherPassword123"
+}
+
+###
+
+### Empty Username
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "",
+  "email": "test@example.com",
+  "password": "Password123"
+}
+
+###
+
+### Invalid Email Format
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "invalid-email",
+  "password": "Password123"
+}
+
+###
+
+### Short Password
+POST http://localhost:8082/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "short"
+}
+
+###
+
+### Access Protected Resource without Token
+GET http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+
+###
+
+### Access Protected Resource with Invalid Token
+GET http://localhost:8081/api/v1/quantities
+Content-Type: application/json
+Authorization: Bearer invalid_token_format
+
+###
+
+### ========================================
+### 13. RATE LIMITING TEST (Auth Service)
+### ========================================
+
+### Test Rate Limiting - Request 1
+POST http://localhost:8081/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "ratelimit_test_1",
+  "email": "ratelimit1@example.com",
+  "password": "RateLimitTest1"
+}
+
+###
+
+### Test Rate Limiting - Request 2
+POST http://localhost:8081/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "ratelimit_test_2",
+  "email": "ratelimit2@example.com",
+  "password": "RateLimitTest2"
+}
+
+###
+
+### ========================================
+### 14. DATABASE HEALTH & POOL METRICS
+### ========================================
+
+### Auth Service DB Health
+GET http://localhost:8082/actuator/health/db
+Accept: application/json
+
+###
+
+### Monolith DB Health
+GET http://localhost:8080/actuator/health/db
+Accept: application/json
+
+###
+
+### ========================================
+### 15. NOTES ON TOKEN USAGE
+### ========================================
+
+### After successful login, copy the 'token' value from the response
+### Then update the Authorization headers in subsequent requests like:
+### Authorization: Bearer <paste-token-here>
+###
+### Token format in response:
+### {
+###   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+###   "type": "Bearer",
+###   "username": "testuser001",
+###   "email": "testuser001@example.com",
+###   "userId": 1
+### }
+
+### ========================================
+### TEST COMPLETED
+### ========================================
+

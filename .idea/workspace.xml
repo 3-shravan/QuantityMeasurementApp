@@ -5,68 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0c0b076a-70c9-4a73-8253-9320b2868b4e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Frontend-Implementation-Guide.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/QuantityMeasurement.postman_collection.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/QuantityMeasurementApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/controller/AuthController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/JwtAuthenticationResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/LoginRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/LogoutResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/OAuth2LoginRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/OAuth2UserInfo.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/dto/SignUpRequest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/entity/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/repository/UserRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/security/CustomUserDetailsService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/security/JwtAuthenticationFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/security/JwtTokenProvider.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/service/AuthService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/auth/service/OAuth2Service.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/config/RestTemplateConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/config/SecurityConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/config/StartupEnvironmentLogger.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/controller/HomeController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/controller/QuantityMeasurementController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/domain/quantity/Quantity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/exception/ErrorResponse.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/exception/GlobalExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/exception/QuantityMeasurementException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/exception/ResourceNotFoundException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/exception/ValidationException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/OperationType.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/QuantityDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/QuantityInputDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/QuantityMeasurementDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/QuantityMeasurementEntity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/model/QuantityModel.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/repository/QuantityMeasurementRepository.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/security/SecurityUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/service/IQuantityMeasurementService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/service/QuantityMeasurementServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/unit/IMeasurable.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/unit/LengthUnit.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/unit/TemperatureUnit.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/unit/VolumeUnit.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/quantitymeasurement/unit/WeightUnit.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-dev.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-prod.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/schema.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/app/quantitymeasurement/QuantityMeasurementApplicationTests.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/app/quantitymeasurement/controller/AuthControllerTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/app/quantitymeasurement/controller/QuantityMeasurementControllerTest.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/resources/application-test.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.microservices.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/app/apigateway/ApiGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/app/apigateway/ApiGatewayApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-prod.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/app/apigateway/ApiGatewayApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/app/apigateway/ApiGatewayApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-10-04_739.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-10-52_523.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-15-26_346.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-19-14_649.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-26-20_517.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-03-33_814.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-04-04_879.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-05-51_968.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-07-04_411.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-17-23_198.dumpstream" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/TEST-com.app.apigateway.ApiGatewayApplicationTests.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/com.app.apigateway.ApiGatewayApplicationTests.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.microservices.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/eureka-server/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/eureka-server/target/classes/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/target/classes/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microservices.env.example" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,11 +49,14 @@
     </persistenceIdMap>
   </component>
   <component name="CopilotUserSelectedChatMode">
-    <option name="chatModeId" value="Ask" />
+    <option name="chatModeId" value="Agent" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="AISelfReview" />
   </component>
@@ -102,27 +75,76 @@
     <option name="showLibraryContents" value="true" />
     <option name="showScratchesAndConsoles" value="false" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.monolith.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/UC21-Microservices&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.monolith.executor": "Run",
+    "HTTP Request.All in api-gateway.executor": "Run",
+    "HTTP Request.All in auth-service.executor": "Run",
+    "HTTP Request.All in eureka-server.executor": "Run",
+    "HTTP Request.All in test-all-services.executor": "Run",
+    "HTTP Request.All in test-requests.executor": "Run",
+    "HTTP Request.auth-req | 1) Auth service health (expect 200 + UP).executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "feature/UC21-Microservices",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "advanced.settings",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="All in api-gateway" value="STOPPED" />
+              <entry key="All in auth-service" value="STOPPED" />
+              <entry key="All in eureka-server" value="STOPPED" />
+              <entry key="All in test-all-services" value="STOPPED" />
+              <entry key="auth-req | 1) Auth service health (expect 200 + UP)" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="HTTP Request.All in auth-service">
+    <configuration name="All in api-gateway" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/api-gateway/http/api-gateway.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in auth-service" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/auth-service/http/auth-service.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in eureka-server" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/eureka-server/http/eureka-server.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in test-all-services" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/test-all-services.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="auth-req | 1) Auth service health (expect 200 + UP)" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/auth-req.http" executionIdentifier="1) Auth service health (expect 200 + UP)" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.All in auth-service" />
+        <item itemvalue="HTTP Request.All in api-gateway" />
+        <item itemvalue="HTTP Request.All in eureka-server" />
+        <item itemvalue="HTTP Request.auth-req | 1) Auth service health (expect 200 + UP)" />
+        <item itemvalue="HTTP Request.All in test-all-services" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="0c0b076a-70c9-4a73-8253-9320b2868b4e" name="Changes" comment="" />
@@ -140,7 +162,12 @@
       <workItem from="1776230706241" duration="1926000" />
       <workItem from="1776236479045" duration="2271000" />
       <workItem from="1776244833976" duration="202000" />
-      <workItem from="1776245089257" duration="2557000" />
+      <workItem from="1776245089257" duration="6295000" />
+      <workItem from="1776253538101" duration="330000" />
+      <workItem from="1776280156158" duration="1741000" />
+      <workItem from="1776284586005" duration="604000" />
+      <workItem from="1776316996218" duration="9975000" />
+      <workItem from="1776328530941" duration="5667000" />
     </task>
     <servers />
   </component>

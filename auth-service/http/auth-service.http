@@ -1,0 +1,114 @@
+### Auth Service API checks (direct + optional gateway)
+### Run top-to-bottom in IntelliJ HTTP Client.
+
+@authBase = http://localhost:8081
+@gatewayBase = http://localhost:8080
+@contentType = application/json
+
+# Keep these unique if you rerun frequently.
+@username = auth_user_{{$timestamp}}
+@email = auth_user_{{$timestamp}}@example.com
+@password = TestPassword123
+
+### 1) Auth service health (expect 200 + UP)
+GET {{authBase}}/actuator/health
+Accept: application/json
+
+###
+### 2) Register user on auth service (expect 201)
+POST {{authBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.global.set("authToken", response.body.token);
+client.global.set("registeredUsername", response.body.username);
+%}
+
+###
+### 3) Login on auth service (expect 200)
+POST {{authBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.global.set("authToken", response.body.token);
+%}
+
+###
+### 4) Logout with valid token (expect 200)
+POST {{authBase}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{}
+
+###
+### 5) Login failure: wrong password (expect 401)
+POST {{authBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "password": "WrongPassword123"
+}
+
+###
+### 6) Duplicate username/email check (expect 4xx, usually 409)
+POST {{authBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+### 7) Validation check: invalid payload (expect 4xx)
+POST {{authBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "",
+  "email": "invalid-email",
+  "password": "short"
+}
+
+###
+### 8) OAuth2 Google endpoint (expect 401 with fake token, 200 with real token)
+POST {{authBase}}/api/v1/auth/oauth2/google
+Content-Type: {{contentType}}
+
+{
+  "provider": "google",
+  "accessToken": "fake_google_access_token"
+}
+
+###
+### 9) Logout without token (expect 401)
+POST {{authBase}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+
+{}
+
+###
+### 10) Optional gateway parity check for auth route (expect same behavior as auth service)
+POST {{gatewayBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+

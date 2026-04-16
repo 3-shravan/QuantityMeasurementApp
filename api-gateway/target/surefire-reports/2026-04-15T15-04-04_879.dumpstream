@@ -1,5 +1,0 @@
-# Created at 2026-04-15T15:04:05.264
-Boot Manifest-JAR contains absolute paths in classpath 'D:\Training\qmp\QuantityMeasurementApp\api-gateway\target\test-classes'
-Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-'other' has different root
-
