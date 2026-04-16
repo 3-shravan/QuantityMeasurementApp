@@ -4,40 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0c0b076a-70c9-4a73-8253-9320b2868b4e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.microservices.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/com/app/apigateway/ApiGatewayApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/com/app/apigateway/ApiGatewayApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-prod.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application-prod.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/app/apigateway/ApiGatewayApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/app/apigateway/ApiGatewayApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-10-04_739.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-10-52_523.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-15-26_346.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-19-14_649.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-07T17-26-20_517.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-03-33_814.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-04-04_879.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-05-51_968.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-07-04_411.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/2026-04-15T15-17-23_198.dumpstream" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/TEST-com.app.apigateway.ApiGatewayApplicationTests.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/surefire-reports/com.app.apigateway.ApiGatewayApplicationTests.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.microservices.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eureka-server/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eureka-server/target/classes/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/target/classes/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/microservices.env.example" beforeDir="false" />
-    </list>
+    <list default="true" id="0c0b076a-70c9-4a73-8253-9320b2868b4e" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -167,7 +134,7 @@
       <workItem from="1776280156158" duration="1741000" />
       <workItem from="1776284586005" duration="604000" />
       <workItem from="1776316996218" duration="9975000" />
-      <workItem from="1776328530941" duration="5667000" />
+      <workItem from="1776328530941" duration="6043000" />
     </task>
     <servers />
   </component>
