@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,11 +20,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
+      "/api/v1/auth/login",
+      "/api/v1/auth/register",
+      "/api/v1/auth/oauth2"
+  );
+
   @Autowired
   private JwtTokenProvider tokenProvider;
 
   @Autowired
   private UserDetailsService userDetailsService;
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith) ||
+           request.getMethod().equalsIgnoreCase("OPTIONS");
+  }
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

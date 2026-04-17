@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,10 +17,23 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+  private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
+      "/actuator/**",
+      "/swagger-ui/**",
+      "/v3/api-docs/**"
+  );
+
   private final JwtTokenProvider tokenProvider;
 
   public JwtAuthenticationFilter(JwtTokenProvider tokenProvider) {
     this.tokenProvider = tokenProvider;
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith) ||
+           request.getMethod().equalsIgnoreCase("OPTIONS");
   }
 
   @Override
@@ -50,4 +64,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     return null;
   }
 }
-
