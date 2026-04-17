@@ -54,5 +54,5 @@ eureka:
 	  defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
 ```
 
-For containerized startup of `eureka-server` + `api-gateway` + `redis` while keeping `monolith/` separate, see `README.microservices.md`.
+For containerized startup of `eureka-server` + `api-gateway` while keeping `monolith/` separate, see `README.microservices.md`.
 

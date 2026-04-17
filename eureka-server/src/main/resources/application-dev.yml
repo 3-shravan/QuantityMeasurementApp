@@ -1,7 +1,13 @@
 server:
-  port: ${SERVER_PORT:8761}
+  port: ${LOCAL_SERVER_PORT:8761}
 
 eureka:
+  instance:
+    hostname: ${LOCAL_EUREKA_HOST:localhost}
+  client:
+    service-url:
+      defaultZone: ${LOCAL_EUREKA_DEFAULT_ZONE:http://${eureka.instance.hostname}:${server.port}/eureka/}
+
   server:
-    enable-self-preservation: false
-    eviction-interval-timer-in-ms: 60000
+    enable-self-preservation: ${LOCAL_EUREKA_SELF_PRESERVATION:false}
+    eviction-interval-timer-in-ms: ${LOCAL_EUREKA_EVICTION_INTERVAL_MS:60000}

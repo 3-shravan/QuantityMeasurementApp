@@ -4,7 +4,7 @@ The central entry point for all client requests in the Quantity Measurement micr
 
 ## Overview
 
-The API Gateway routes requests to appropriate microservices, manages authentication, implements rate limiting, and provides resilience through retry logic and circuit breaker patterns.
+The API Gateway routes requests to appropriate microservices, manages authentication, and provides resilience through retry logic and circuit breaker patterns.
 
 **Default Port:** `8081`
 
@@ -14,8 +14,7 @@ The API Gateway routes requests to appropriate microservices, manages authentica
 - **Spring Boot:** 3.4.3
 - **Spring Cloud Gateway:** Reactive API gateway with intelligent routing
 - **Spring Cloud Eureka:** Service discovery and registration
-- **Resilience4j:** Circuit breaker, retry, and rate limiting
-- **Redis:** Distributed rate limiting and caching
+- **Resilience4j:** Circuit breaker and retry patterns
 - **JWT:** Token-based authentication relay
 
 ## Architecture
@@ -38,22 +37,22 @@ Clients
 
 ### Authentication Routes (Public - No JWT Required)
 
-| Endpoint | Method | Purpose | Rate Limit |
-|----------|--------|---------|------------|
-| `/api/v1/auth/register` | POST | User registration | 20/sec |
-| `/api/v1/auth/login` | POST | User authentication | 20/sec |
-| `/api/v1/auth/logout` | POST | User logout | Unlimited |
-| `/api/v1/auth/oauth2/google` | POST | OAuth2 authentication | 20/sec |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/auth/register` | POST | User registration |
+| `/api/v1/auth/login` | POST | User authentication |
+| `/api/v1/auth/logout` | POST | User logout |
+| `/api/v1/auth/oauth2/google` | POST | OAuth2 authentication |
 
 ### Quantity Routes (Protected - JWT Required)
 
-| Endpoint | Method | Purpose | Rate Limit |
-|----------|--------|---------|------------|
-| `/api/v1/quantities` | GET | Fetch all quantities | 30/sec |
-| `/api/v1/quantities/{id}` | GET | Fetch single quantity | 30/sec |
-| `/api/v1/quantities` | POST | Create quantity | 30/sec |
-| `/api/v1/quantities/{id}` | PUT | Update quantity | 30/sec |
-| `/api/v1/quantities/{id}` | DELETE | Delete quantity | 30/sec |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/quantities` | GET | Fetch all quantities |
+| `/api/v1/quantities/{id}` | GET | Fetch single quantity |
+| `/api/v1/quantities` | POST | Create quantity |
+| `/api/v1/quantities/{id}` | PUT | Update quantity |
+| `/api/v1/quantities/{id}` | DELETE | Delete quantity |
 
 ## Configuration
 
@@ -61,8 +60,8 @@ Base configuration: `src/main/resources/application.yml`
 
 ### Environment Profiles
 
-- **dev:** Local development (Redis-backed rate limiting, debug logging, relaxed rate limits)
-- **prod:** Production settings (Redis-backed rate limiting, limited logging, strict rate limits)
+- **dev:** Local development (debug logging)
+- **prod:** Production settings (limited logging)
 
 Configuration files:
 - `application-dev.yml` - Development overrides
@@ -73,8 +72,6 @@ Configuration files:
 **Required for Production:**
 ```bash
 EUREKA_DEFAULT_ZONE=<eureka-server-url>
-REDIS_HOST=<redis-host>
-REDIS_PASSWORD=<redis-password>
 ```
 
 **Optional Configuration:**
@@ -82,10 +79,6 @@ REDIS_PASSWORD=<redis-password>
 SPRING_PROFILES_ACTIVE=dev|prod              # Default: dev
 SERVER_PORT=8081                              # Default: 8081
 GATEWAY_RETRY_RETRIES=2|3                     # Default: 2 (dev), 3 (prod)
-GATEWAY_AUTH_RATE_PER_SEC=20|50              # Default: 20 (dev), 50 (prod)
-GATEWAY_AUTH_BURST_CAPACITY=40|100           # Default: 40 (dev), 100 (prod)
-GATEWAY_QUANTITY_RATE_PER_SEC=30|100         # Default: 30 (dev), 100 (prod)
-GATEWAY_QUANTITY_BURST_CAPACITY=60|200       # Default: 60 (dev), 200 (prod)
 ```
 
 ## Features
@@ -110,13 +103,7 @@ GATEWAY_QUANTITY_BURST_CAPACITY=60|200       # Default: 60 (dev), 200 (prod)
 - **Circuit Breaker:** Opens after 50% failure rate, recovers after 15s
 - **Fallback:** Service unavailable responses when circuit is open
 
-### 5. Rate Limiting
-- Per-user rate limiting based on JWT token
-- Per-IP fallback if no JWT token present
-- Redis-backed distributed rate limiting
-- Separate limits for auth and quantity services
-
-### 6. Monitoring & Metrics
+### 5. Monitoring & Metrics
 - Health check endpoints
 - Prometheus-compatible metrics export
 - Gateway routes and filters inspection
@@ -215,8 +202,6 @@ docker build -t api-gateway:1.0.0 .
 # Run container
 docker run -p 8081:8081 \
   -e EUREKA_DEFAULT_ZONE=http://eureka:8761/eureka/ \
-  -e REDIS_HOST=redis \
-  -e REDIS_PASSWORD=<redis-password> \
   api-gateway:1.0.0
 
 # With Docker Compose
@@ -248,7 +233,6 @@ curl http://localhost:8081/actuator/prometheus
 |-------|----------|
 | **404 Service Not Found** | Ensure Eureka is running and services are registered. Check `http://localhost:8761` |
 | **401 Unauthorized** | Login first to get JWT token, then include it in `Authorization: Bearer <token>` header |
-| **429 Too Many Requests** | You've hit rate limit. Wait for window to reset or increase limits in config |
 | **503 Service Unavailable** | A service is down. Circuit breaker has opened. Wait 15s for recovery or restart service |
 | **Connection timeout** | Check if services are running and accessible. Verify network/firewall settings |
 
@@ -266,7 +250,7 @@ See `API_GATEWAY_CONFIGURATION.md` for detailed troubleshooting.
 1. ✅ Configure authentication routes to Auth Service
 2. ✅ Configure protected routes to downstream services
 3. ✅ Implement JWT token relay
-4. ✅ Set up rate limiting and circuit breaker
+4. ✅ Set up circuit breaker and retry
 5. 📋 Extract additional services from monolith
 6. 📋 Deploy to Docker/Kubernetes
 7. 📋 Set up monitoring and alerting

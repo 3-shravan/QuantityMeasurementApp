@@ -1,0 +1,74 @@
+### Quantity Service API checks (direct + gateway)
+### Run after auth-service and api-gateway are running.
+
+@quantityBase = http://localhost:8082
+@gatewayBase = http://localhost:8080
+@authBase = http://localhost:8081
+@contentType = application/json
+
+@username = quantity_user_{{$timestamp}}
+@email = quantity_user_{{$timestamp}}@example.com
+@password = TestPassword123
+
+### 1) Quantity service health (expect 200 + UP)
+GET {{quantityBase}}/actuator/health
+Accept: application/json
+
+###
+### 2) Register user (auth-service direct)
+POST {{authBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.global.set("quantityJwt", response.body.token);
+%}
+
+###
+### 3) Add quantities (gateway -> quantity-service)
+POST {{gatewayBase}}/api/v1/quantities/add
+Content-Type: {{contentType}}
+Authorization: Bearer {{quantityJwt}}
+
+{
+  "thisQuantityDTO": {
+    "value": 1,
+    "unit": "FEET",
+    "measurementType": "LengthUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 12,
+    "unit": "INCHES",
+    "measurementType": "LengthUnit"
+  }
+}
+
+###
+### 4) Convert quantities (gateway -> quantity-service)
+POST {{gatewayBase}}/api/v1/quantities/convert
+Content-Type: {{contentType}}
+Authorization: Bearer {{quantityJwt}}
+
+{
+  "thisQuantityDTO": {
+    "value": 1,
+    "unit": "GALLON",
+    "measurementType": "VolumeUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 0,
+    "unit": "LITRE",
+    "measurementType": "VolumeUnit"
+  }
+}
+
+###
+### 5) Error history (gateway -> quantity-service)
+GET {{gatewayBase}}/api/v1/quantities/history/errored
+Authorization: Bearer {{quantityJwt}}
+

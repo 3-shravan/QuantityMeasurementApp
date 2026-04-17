@@ -9,7 +9,6 @@
 ### 2. Start Auth Service:    cd auth-service && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
 ### 3. Start API Gateway:     cd api-gateway && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
 ### 4. Start Monolith:        cd monolith && mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
-### 5. Ensure Redis is running locally (for API Gateway rate limiting)
 ###
 ### Variables (set these after getting token):
 ### @authToken =
@@ -402,29 +401,29 @@ Authorization: Bearer invalid_token_format
 ###
 
 ### ========================================
-### 13. RATE LIMITING TEST (Auth Service)
+### 13. REPEATED REQUEST SMOKE TEST (Auth Service)
 ### ========================================
 
-### Test Rate Limiting - Request 1
+### Repeated Request - Run 1
 POST http://localhost:8081/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "ratelimit_test_1",
-  "email": "ratelimit1@example.com",
-  "password": "RateLimitTest1"
+  "username": "repeat_test_1",
+  "email": "repeat1@example.com",
+  "password": "RepeatTest1"
 }
 
 ###
 
-### Test Rate Limiting - Request 2
+### Repeated Request - Run 2
 POST http://localhost:8081/api/v1/auth/register
 Content-Type: application/json
 
 {
-  "username": "ratelimit_test_2",
-  "email": "ratelimit2@example.com",
-  "password": "RateLimitTest2"
+  "username": "repeat_test_2",
+  "email": "repeat2@example.com",
+  "password": "RepeatTest2"
 }
 
 ###

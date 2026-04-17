@@ -6,7 +6,6 @@ You now have a **fully functional microservices architecture** with:
 - ✅ **Eureka Server** (Service Discovery) - Port 8761
 - ✅ **API Gateway** (Request Routing) - Port 8081
 - ✅ **Auth Service** (Authentication/JWT) - Port 8082
-- ✅ **Redis** (Rate Limiting Cache) - Port 6379
 
 **Monolith remains untouched** — only used as reference.
 
@@ -132,7 +131,6 @@ Expected response includes JWT token:
                          ▼
           ┌──────────────────────────────┐
           │      API GATEWAY (8081)       │
-          │  - Rate Limiting (Redis)      │
           │  - Circuit Breaker            │
           │  - Request Routing            │
           └───────────┬─────────┬─────────┘
@@ -191,11 +189,6 @@ When ready, repeat the pattern:
 - Check service health endpoints
 - Verify no port conflicts (8081, 8082, 8761)
 
-### Rate limiting errors?
-- Ensure Redis is running on 6379
-- Check `SPRING_DATA_REDIS_HOST` environment variable
-
----
 
 ## Stopping Services
 

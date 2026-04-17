@@ -23,7 +23,7 @@ GET {{eurekaBase}}/eureka/apps/API-GATEWAY
 Accept: application/json
 
 ###
-### 5) Quantity/monolith registration (expect 200 only when monolith is running and registered)
-GET {{eurekaBase}}/eureka/apps/QUANTITY-MEASUREMENT-APP
+### 5) Quantity service registration (expect 200 when quantity-service is running)
+GET {{eurekaBase}}/eureka/apps/QUANTITY-SERVICE
 Accept: application/json
 

@@ -1,5 +1,0 @@
-{
-  "message": "Successfully logged out. Please remove the JWT token from client side.",
-  "success": true,
-  "username": "auth_user_1776335291"
-}

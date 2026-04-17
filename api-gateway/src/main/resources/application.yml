@@ -32,11 +32,6 @@ spring:
               args:
                 name: authCircuitBreaker
                 fallbackUri: forward:/fallback/auth
-            - name: RequestRateLimiter
-              args:
-                "redis-rate-limiter.replenishRate": ${app.gateway.ratelimit.auth.replenish-rate}
-                "redis-rate-limiter.burstCapacity": ${app.gateway.ratelimit.auth.burst-capacity}
-                key-resolver: "#{@userKeyResolver}"
             - AddRequestHeader=X-Auth-Type,registration
 
         - id: auth-login
@@ -54,11 +49,6 @@ spring:
               args:
                 name: authCircuitBreaker
                 fallbackUri: forward:/fallback/auth
-            - name: RequestRateLimiter
-              args:
-                "redis-rate-limiter.replenishRate": ${app.gateway.ratelimit.auth.replenish-rate}
-                "redis-rate-limiter.burstCapacity": ${app.gateway.ratelimit.auth.burst-capacity}
-                key-resolver: "#{@userKeyResolver}"
             - AddRequestHeader=X-Auth-Type,login
 
         - id: auth-logout
@@ -93,11 +83,6 @@ spring:
               args:
                 name: authCircuitBreaker
                 fallbackUri: forward:/fallback/auth
-            - name: RequestRateLimiter
-              args:
-                "redis-rate-limiter.replenishRate": ${app.gateway.ratelimit.auth.replenish-rate}
-                "redis-rate-limiter.burstCapacity": ${app.gateway.ratelimit.auth.burst-capacity}
-                key-resolver: "#{@userKeyResolver}"
             - AddRequestHeader=X-Auth-Type,oauth2
 
         # ===== QUANTITY SERVICE ROUTES (Authenticated) =====
@@ -115,11 +100,6 @@ spring:
               args:
                 name: quantityCircuitBreaker
                 fallbackUri: forward:/fallback/quantity
-            - name: RequestRateLimiter
-              args:
-                "redis-rate-limiter.replenishRate": ${app.gateway.ratelimit.quantity.replenish-rate}
-                "redis-rate-limiter.burstCapacity": ${app.gateway.ratelimit.quantity.burst-capacity}
-                key-resolver: "#{@userKeyResolver}"
 
       discovery:
         locator:
@@ -154,13 +134,6 @@ app:
   gateway:
     retry:
       retries: ${GATEWAY_RETRY_RETRIES:2}
-    ratelimit:
-      auth:
-        replenish-rate: ${GATEWAY_AUTH_RATE_PER_SEC:20}
-        burst-capacity: ${GATEWAY_AUTH_BURST_CAPACITY:40}
-      quantity:
-        replenish-rate: ${GATEWAY_QUANTITY_RATE_PER_SEC:30}
-        burst-capacity: ${GATEWAY_QUANTITY_BURST_CAPACITY:60}
 
 resilience4j:
   circuitbreaker:
