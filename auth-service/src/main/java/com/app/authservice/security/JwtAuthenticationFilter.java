@@ -5,8 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.regex.Pattern;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,38 +17,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private static final Pattern PUBLIC_AUTH_PATH_PATTERN = Pattern.compile(
-      "^/(?:.*/)?api/v1/auth/(?:login|register)(?:/.*)?$|^/(?:.*/)?api/v1/auth/oauth2(?:/.*)?$"
-  );
+  private final JwtTokenProvider tokenProvider;
+  private final UserDetailsService userDetailsService;
+  private final AuthEndpointPolicy authEndpointPolicy;
 
-  @Autowired
-  private JwtTokenProvider tokenProvider;
-
-  @Autowired
-  private UserDetailsService userDetailsService;
+  public JwtAuthenticationFilter(
+      JwtTokenProvider tokenProvider,
+      UserDetailsService userDetailsService,
+      AuthEndpointPolicy authEndpointPolicy
+  ) {
+    this.tokenProvider = tokenProvider;
+    this.userDetailsService = userDetailsService;
+    this.authEndpointPolicy = authEndpointPolicy;
+  }
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     return request.getMethod().equalsIgnoreCase("OPTIONS")
-        || isPublicAuthPath(request.getRequestURI());
-  }
-
-  private boolean isPublicAuthPath(String path) {
-    if (path == null || path.isBlank()) {
-      return false;
-    }
-
-    String normalized = path.trim();
-    int queryIndex = normalized.indexOf('?');
-    if (queryIndex >= 0) {
-      normalized = normalized.substring(0, queryIndex);
-    }
-
-    if (normalized.length() > 1 && normalized.endsWith("/")) {
-      normalized = normalized.substring(0, normalized.length() - 1);
-    }
-
-    return PUBLIC_AUTH_PATH_PATTERN.matcher(normalized).matches();
+        || authEndpointPolicy.isPublicAuthPath(request.getRequestURI());
   }
 
   @Override

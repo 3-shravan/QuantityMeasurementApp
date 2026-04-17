@@ -1,5 +1,6 @@
 package com.app.authservice.config;
 
+import com.app.authservice.security.AuthEndpointPolicy;
 import com.app.authservice.security.JwtAuthenticationFilter;
 import java.util.Arrays;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -29,14 +29,22 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-  @Autowired
-  private UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final AuthEndpointPolicy authEndpointPolicy;
+  private final String allowedOrigins;
 
-  @Autowired
-  private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-  @Value("${app.cors.allowed-origins}")
-  private String allowedOrigins;
+  public SecurityConfig(
+      UserDetailsService userDetailsService,
+      JwtAuthenticationFilter jwtAuthenticationFilter,
+      AuthEndpointPolicy authEndpointPolicy,
+      @Value("${app.cors.allowed-origins}") String allowedOrigins
+  ) {
+    this.userDetailsService = userDetailsService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.authEndpointPolicy = authEndpointPolicy;
+    this.allowedOrigins = allowedOrigins;
+  }
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -80,14 +88,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorizeRequests ->
             authorizeRequests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(
-                    "/api/v1/auth/login", "/api/v1/auth/login/**",
-                    "/api/v1/auth/register", "/api/v1/auth/register/**",
-                    "/api/v1/auth/oauth2/**",
-                    "/auth-service/api/v1/auth/login", "/auth-service/api/v1/auth/login/**",
-                    "/auth-service/api/v1/auth/register", "/auth-service/api/v1/auth/register/**",
-                    "/auth-service/api/v1/auth/oauth2/**"
-                ).permitAll()
+                .requestMatchers(authEndpointPolicy.publicRequestMatchers()).permitAll()
                 .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
         )

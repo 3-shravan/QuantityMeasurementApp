@@ -1,11 +1,11 @@
 package com.app.authservice.service;
 
+import com.app.authservice.application.port.OAuth2ApplicationService;
 import com.app.authservice.dto.JwtAuthenticationResponse;
 import com.app.authservice.dto.OAuth2UserInfo;
 import com.app.authservice.entity.User;
 import com.app.authservice.repository.UserRepository;
 import com.app.authservice.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,37 +16,37 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
-public class OAuth2Service {
+public class OAuth2Service implements OAuth2ApplicationService {
 
-  @Autowired
-  private UserRepository userRepository;
+  private static final String GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
 
-  @Autowired
-  private JwtTokenProvider tokenProvider;
+  private final UserRepository userRepository;
+  private final JwtTokenProvider tokenProvider;
+  private final RestTemplate restTemplate;
 
-  @Autowired
-  private RestTemplate restTemplate;
+  public OAuth2Service(
+      UserRepository userRepository,
+      JwtTokenProvider tokenProvider,
+      RestTemplate restTemplate
+  ) {
+    this.userRepository = userRepository;
+    this.tokenProvider = tokenProvider;
+    this.restTemplate = restTemplate;
+  }
 
   /**
    * Handle OAuth 2 login/registration
    * If user exists, login. If not, create new user.
    */
+  @Override
   public JwtAuthenticationResponse loginOrRegisterOAuth2User(OAuth2UserInfo oauth2UserInfo) {
     String email = oauth2UserInfo.getEmail();
 
-    // Check if user already exists
     User user = userRepository.findByEmail(email)
         .orElseGet(() -> createNewOAuth2User(oauth2UserInfo));
 
-    // Generate JWT token
     String token = tokenProvider.generateToken(user.getUsername());
-
-    return JwtAuthenticationResponse.builder()
-        .token(token)
-        .username(user.getUsername())
-        .email(user.getEmail())
-        .userId(user.getId())
-        .build();
+    return toJwtResponse(user, token);
   }
 
   /**
@@ -61,14 +61,7 @@ public class OAuth2Service {
     // Ensure username uniqueness
     String finalUsername = ensureUniqueUsername(username);
 
-    User user = User.builder()
-        .username(finalUsername)
-        .email(oauth2UserInfo.getEmail())
-        .password("") // OAuth 2 users don't have password
-        .enabled(true)
-        .build();
-
-    return userRepository.save(user);
+    return userRepository.save(toOAuthUser(oauth2UserInfo, finalUsername));
   }
 
   /**
@@ -89,39 +82,66 @@ public class OAuth2Service {
   /**
    * Get Google user info
    */
+  @Override
   public OAuth2UserInfo getGoogleUserInfo(String accessToken) {
     if (accessToken == null || accessToken.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access token is required");
     }
 
     try {
-      String url = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
+      String url = GOOGLE_USER_INFO_URL + accessToken;
       GoogleUserResponse response = restTemplate.getForObject(url, GoogleUserResponse.class);
 
       if (response == null || response.getEmail() == null || response.getEmail().isBlank()) {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google access token");
       }
 
-      return OAuth2UserInfo.builder()
-          .id(response.getId())
-          .email(response.getEmail())
-          .name(response.getName())
-          .profilePictureUrl(response.getPicture())
-          .provider("google")
-          .build();
+      return toOAuthUserInfo(response);
     } catch (ResponseStatusException ex) {
       throw ex;
     } catch (RestClientResponseException ex) {
-      if (ex.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()
-          || ex.getRawStatusCode() == HttpStatus.FORBIDDEN.value()) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google access token", ex);
-      }
-      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to validate Google access token", ex);
+      throw mapGoogleApiException(ex);
     } catch (ResourceAccessException ex) {
       throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Google OAuth service is unavailable", ex);
     } catch (Exception ex) {
       throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to validate Google access token", ex);
     }
+  }
+
+  private ResponseStatusException mapGoogleApiException(RestClientResponseException ex) {
+    if (ex.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()
+        || ex.getRawStatusCode() == HttpStatus.FORBIDDEN.value()) {
+      return new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google access token", ex);
+    }
+    return new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to validate Google access token", ex);
+  }
+
+  private User toOAuthUser(OAuth2UserInfo oauth2UserInfo, String username) {
+    return User.builder()
+        .username(username)
+        .email(oauth2UserInfo.getEmail())
+        .password("")
+        .enabled(true)
+        .build();
+  }
+
+  private OAuth2UserInfo toOAuthUserInfo(GoogleUserResponse response) {
+    return OAuth2UserInfo.builder()
+        .id(response.getId())
+        .email(response.getEmail())
+        .name(response.getName())
+        .profilePictureUrl(response.getPicture())
+        .provider("google")
+        .build();
+  }
+
+  private JwtAuthenticationResponse toJwtResponse(User user, String token) {
+    return JwtAuthenticationResponse.builder()
+        .token(token)
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .userId(user.getId())
+        .build();
   }
 
   // DTOs for OAuth2 responses

@@ -21,16 +21,8 @@ public class GlobalExceptionHandler {
       HttpServletRequest request
   ) {
     HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-
-    ApiErrorResponse body = ApiErrorResponse.builder()
-        .timestamp(Instant.now())
-        .status(status.value())
-        .error(status.getReasonPhrase())
-        .message(ex.getReason() != null ? ex.getReason() : "Request failed")
-        .path(request.getRequestURI())
-        .build();
-
-    return ResponseEntity.status(status).body(body);
+    String message = ex.getReason() != null ? ex.getReason() : "Request failed";
+    return buildResponse(status, message, request);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,15 +38,7 @@ public class GlobalExceptionHandler {
       message = "Invalid request payload";
     }
 
-    ApiErrorResponse body = ApiErrorResponse.builder()
-        .timestamp(Instant.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-        .message(message)
-        .path(request.getRequestURI())
-        .build();
-
-    return ResponseEntity.badRequest().body(body);
+    return buildResponse(HttpStatus.BAD_REQUEST, message, request);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -62,15 +46,7 @@ public class GlobalExceptionHandler {
       HttpMessageNotReadableException ex,
       HttpServletRequest request
   ) {
-    ApiErrorResponse body = ApiErrorResponse.builder()
-        .timestamp(Instant.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-        .message("Malformed JSON request")
-        .path(request.getRequestURI())
-        .build();
-
-    return ResponseEntity.badRequest().body(body);
+    return buildResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request", request);
   }
 
   @ExceptionHandler(AuthenticationException.class)
@@ -78,15 +54,7 @@ public class GlobalExceptionHandler {
       AuthenticationException ex,
       HttpServletRequest request
   ) {
-    ApiErrorResponse body = ApiErrorResponse.builder()
-        .timestamp(Instant.now())
-        .status(HttpStatus.UNAUTHORIZED.value())
-        .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
-        .message("Invalid username or password")
-        .path(request.getRequestURI())
-        .build();
-
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    return buildResponse(HttpStatus.UNAUTHORIZED, "Invalid username or password", request);
   }
 
   @ExceptionHandler(Exception.class)
@@ -94,15 +62,23 @@ public class GlobalExceptionHandler {
       Exception ex,
       HttpServletRequest request
   ) {
+    return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request);
+  }
+
+  private ResponseEntity<ApiErrorResponse> buildResponse(
+      HttpStatus status,
+      String message,
+      HttpServletRequest request
+  ) {
     ApiErrorResponse body = ApiErrorResponse.builder()
         .timestamp(Instant.now())
-        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-        .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-        .message("Unexpected server error")
+        .status(status.value())
+        .error(status.getReasonPhrase())
+        .message(message)
         .path(request.getRequestURI())
         .build();
 
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    return ResponseEntity.status(status).body(body);
   }
 }
 

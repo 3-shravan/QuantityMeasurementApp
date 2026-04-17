@@ -1,19 +1,18 @@
 package com.app.authservice.controller;
 
+import com.app.authservice.application.port.AuthApplicationService;
+import com.app.authservice.application.port.OAuth2ApplicationService;
 import com.app.authservice.dto.JwtAuthenticationResponse;
 import com.app.authservice.dto.LoginRequest;
 import com.app.authservice.dto.LogoutResponse;
 import com.app.authservice.dto.OAuth2LoginRequest;
 import com.app.authservice.dto.OAuth2UserInfo;
 import com.app.authservice.dto.SignUpRequest;
-import com.app.authservice.service.AuthService;
-import com.app.authservice.service.OAuth2Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,11 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication", description = "API for user authentication and registration")
 public class AuthController {
 
-  @Autowired
-  private AuthService authService;
+  private final AuthApplicationService authService;
+  private final OAuth2ApplicationService oauth2Service;
 
-  @Autowired
-  private OAuth2Service oauth2Service;
+  public AuthController(AuthApplicationService authService, OAuth2ApplicationService oauth2Service) {
+    this.authService = authService;
+    this.oauth2Service = oauth2Service;
+  }
 
   @PostMapping("/login")
   @Operation(summary = "Login user", description = "Authenticate user with username and password, returns JWT token")
