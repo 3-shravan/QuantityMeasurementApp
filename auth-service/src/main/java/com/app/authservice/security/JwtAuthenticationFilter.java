@@ -5,8 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,10 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
-      "/api/v1/auth/login",
-      "/api/v1/auth/register",
-      "/api/v1/auth/oauth2"
+  private static final Pattern PUBLIC_AUTH_PATH_PATTERN = Pattern.compile(
+      "^/(?:.*/)?api/v1/auth/(?:login|register)(?:/.*)?$|^/(?:.*/)?api/v1/auth/oauth2(?:/.*)?$"
   );
 
   @Autowired
@@ -34,9 +31,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
-    String path = request.getRequestURI();
-    return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith) ||
-           request.getMethod().equalsIgnoreCase("OPTIONS");
+    return request.getMethod().equalsIgnoreCase("OPTIONS")
+        || isPublicAuthPath(request.getRequestURI());
+  }
+
+  private boolean isPublicAuthPath(String path) {
+    if (path == null || path.isBlank()) {
+      return false;
+    }
+
+    String normalized = path.trim();
+    int queryIndex = normalized.indexOf('?');
+    if (queryIndex >= 0) {
+      normalized = normalized.substring(0, queryIndex);
+    }
+
+    if (normalized.length() > 1 && normalized.endsWith("/")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+
+    return PUBLIC_AUTH_PATH_PATTERN.matcher(normalized).matches();
   }
 
   @Override

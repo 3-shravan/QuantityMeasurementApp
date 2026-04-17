@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping({"/api/v1/auth", "/auth-service/api/v1/auth"})
 @Tag(name = "Authentication", description = "API for user authentication and registration")
 public class AuthController {
 
@@ -53,7 +53,7 @@ public class AuthController {
   @SecurityRequirement(name = "Bearer Authentication")
   public ResponseEntity<LogoutResponse> logout(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String username = authentication != null ? authentication.getName() : "Unknown";
+    String username = resolveUsername(authentication);
 
     SecurityContextHolder.clearContext();
 
@@ -64,6 +64,19 @@ public class AuthController {
         .build();
 
     return ResponseEntity.ok(response);
+  }
+
+  private String resolveUsername(Authentication authentication) {
+    if (authentication == null) {
+      return "Unknown";
+    }
+
+    try {
+      String name = authentication.getName();
+      return (name == null || name.isBlank()) ? "Unknown" : name;
+    } catch (Exception ex) {
+      return "Unknown";
+    }
   }
 
   @PostMapping("/oauth2/google")

@@ -6,9 +6,13 @@ import com.app.authservice.entity.User;
 import com.app.authservice.repository.UserRepository;
 import com.app.authservice.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional
@@ -86,9 +90,17 @@ public class OAuth2Service {
    * Get Google user info
    */
   public OAuth2UserInfo getGoogleUserInfo(String accessToken) {
+    if (accessToken == null || accessToken.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Access token is required");
+    }
+
     try {
       String url = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + accessToken;
       GoogleUserResponse response = restTemplate.getForObject(url, GoogleUserResponse.class);
+
+      if (response == null || response.getEmail() == null || response.getEmail().isBlank()) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google access token");
+      }
 
       return OAuth2UserInfo.builder()
           .id(response.getId())
@@ -97,8 +109,18 @@ public class OAuth2Service {
           .profilePictureUrl(response.getPicture())
           .provider("google")
           .build();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to fetch Google user info: " + e.getMessage());
+    } catch (ResponseStatusException ex) {
+      throw ex;
+    } catch (RestClientResponseException ex) {
+      if (ex.getRawStatusCode() == HttpStatus.UNAUTHORIZED.value()
+          || ex.getRawStatusCode() == HttpStatus.FORBIDDEN.value()) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google access token", ex);
+      }
+      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to validate Google access token", ex);
+    } catch (ResourceAccessException ex) {
+      throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Google OAuth service is unavailable", ex);
+    } catch (Exception ex) {
+      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Failed to validate Google access token", ex);
     }
   }
 
@@ -126,4 +148,3 @@ public class OAuth2Service {
     }
   }
 }
-

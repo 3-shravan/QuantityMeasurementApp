@@ -1,7 +1,7 @@
 package com.app.quantityservice.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,16 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+  private ErrorResponse buildError(HttpStatus status, String message, HttpServletRequest request) {
+    return ErrorResponse.builder()
+        .timestamp(Instant.now())
+        .status(status.value())
+        .error(status.getReasonPhrase())
+        .message(message)
+        .path(request.getRequestURI())
+        .build();
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException ex,
@@ -27,13 +37,7 @@ public class GlobalExceptionHandler {
         .map(error -> error instanceof FieldError fieldError ? fieldError.getDefaultMessage() : error.getDefaultMessage())
         .collect(Collectors.joining(", "));
 
-    return ResponseEntity.badRequest().body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error("Quantity Measurement Error")
-        .message(message)
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, message, request));
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -41,13 +45,7 @@ public class GlobalExceptionHandler {
       HttpMessageNotReadableException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error("Quantity Measurement Error")
-        .message("Malformed JSON request")
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", request));
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -55,13 +53,7 @@ public class GlobalExceptionHandler {
       MethodArgumentTypeMismatchException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error("Quantity Measurement Error")
-        .message("Invalid value for parameter: " + ex.getName())
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, "Invalid value for parameter: " + ex.getName(), request));
   }
 
   @ExceptionHandler(QuantityMeasurementException.class)
@@ -69,13 +61,7 @@ public class GlobalExceptionHandler {
       QuantityMeasurementException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.BAD_REQUEST.value())
-        .error("Quantity Measurement Error")
-        .message(ex.getMessage())
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
   }
 
   @ExceptionHandler(AuthenticationException.class)
@@ -83,24 +69,14 @@ public class GlobalExceptionHandler {
       AuthenticationException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.UNAUTHORIZED.value())
-        .error("Unauthorized")
-        .message("Authentication failed")
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(buildError(HttpStatus.UNAUTHORIZED, "Authentication failed", request));
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, HttpServletRequest request) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
-        .timestamp(LocalDateTime.now())
-        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-        .error("Internal Server Error")
-        .message(ex.getMessage())
-        .path(request.getRequestURI())
-        .build());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request));
   }
 }
 

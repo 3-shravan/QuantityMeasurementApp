@@ -14,6 +14,7 @@ import com.app.quantityservice.unit.LengthUnit;
 import com.app.quantityservice.unit.TemperatureUnit;
 import com.app.quantityservice.unit.VolumeUnit;
 import com.app.quantityservice.unit.WeightUnit;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -166,7 +167,15 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     entity.setResultUnit(resultUnit);
     entity.setResultMeasurementType(resultMeasurementType);
     entity.setError(false);
-    entity.setUsername(securityUtil.getCurrentUsername());
+
+    String username = securityUtil.getCurrentUsername();
+    entity.setUsername(username);
+
+    if (username == null) {
+      entity.setCreatedAt(LocalDateTime.now());
+      return QuantityMeasurementDTO.fromEntity(entity);
+    }
+
     return QuantityMeasurementDTO.fromEntity(repository.save(entity));
   }
 
@@ -182,8 +191,12 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
     entity.setOperation(operation.name().toLowerCase());
     entity.setError(true);
     entity.setErrorMessage(errorMessage);
-    entity.setUsername(securityUtil.getCurrentUsername());
-    repository.save(entity);
+
+    String username = securityUtil.getCurrentUsername();
+    entity.setUsername(username);
+    if (username != null) {
+      repository.save(entity);
+    }
   }
 
   private QuantityModel<IMeasurable> convertDtoToModel(QuantityDTO dto, String label) {

@@ -3,10 +3,12 @@ package com.app.quantityservice.config;
 import com.app.quantityservice.security.JwtAuthenticationFilter;
 import java.util.Arrays;
 import java.util.List;
+import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -37,14 +39,21 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
           response.setContentType("application/json");
-          response.setStatus(401);
-          response.getWriter().write("{\"error\": \"Unauthorized\"}");
+          response.setStatus(HttpStatus.UNAUTHORIZED.value());
+          String body = String.format(
+              "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+              Instant.now(),
+              HttpStatus.UNAUTHORIZED.value(),
+              HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+              "Unauthorized",
+              request.getRequestURI());
+          response.getWriter().write(body);
         }))
         .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorizeRequests -> authorizeRequests
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            .requestMatchers("/api/v1/quantities/**").authenticated()
+            .requestMatchers("/api/v1/quantities/**").permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

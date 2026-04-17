@@ -4,8 +4,8 @@
 
 You now have a **fully functional microservices architecture** with:
 - ✅ **Eureka Server** (Service Discovery) - Port 8761
-- ✅ **API Gateway** (Request Routing) - Port 8081
-- ✅ **Auth Service** (Authentication/JWT) - Port 8082
+- ✅ **API Gateway** (Request Routing) - Port 8080
+- ✅ **Auth Service** (Authentication/JWT) - Port 8081
 
 **Monolith remains untouched** — only used as reference.
 
@@ -42,6 +42,15 @@ cd D:\Training\qmp\QuantityMeasurementApp\api-gateway
 mvn spring-boot:run
 ```
 
+### Option 3: Local Development (Ordered startup with health checks)
+
+```powershell
+cd D:\Training\qmp\QuantityMeasurementApp
+powershell -ExecutionPolicy Bypass -File .\scripts\start-local-health-check.ps1
+```
+
+This script starts services in order (`eureka-server` -> `auth-service` -> `api-gateway`) and waits for health and Eureka registration at each step.
+
 ---
 
 ## Verify Services Are Running
@@ -62,7 +71,7 @@ Should show both services in XML format.
 
 ### Check API Gateway Health
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:8081/actuator/health" -UseBasicParsing | ConvertFrom-Json | ConvertTo-Json
+Invoke-WebRequest -Uri "http://localhost:8080/actuator/health" -UseBasicParsing | ConvertFrom-Json | ConvertTo-Json
 ```
 
 Should return:
@@ -74,7 +83,7 @@ Should return:
 
 ### Check Auth Service Health
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:8082/actuator/health" -UseBasicParsing | ConvertFrom-Json | ConvertTo-Json
+Invoke-WebRequest -Uri "http://localhost:8081/actuator/health" -UseBasicParsing | ConvertFrom-Json | ConvertTo-Json
 ```
 
 ---

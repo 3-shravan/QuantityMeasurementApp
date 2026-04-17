@@ -3,8 +3,10 @@ package com.app.authservice.config;
 import com.app.authservice.security.JwtAuthenticationFilter;
 import java.util.Arrays;
 import java.util.List;
+import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,11 +58,20 @@ public class SecurityConfig {
     http
         .cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
-        .exceptionHandling(exceptionHandling -> 
+        .logout(logout -> logout.disable())
+        .exceptionHandling(exceptionHandling ->
             exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
               response.setContentType("application/json");
-              response.setStatus(401);
-              response.getWriter().write("{\"error\": \"Unauthorized\"}");
+              response.setStatus(HttpStatus.UNAUTHORIZED.value());
+              String body = String.format(
+                  "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                  Instant.now(),
+                  HttpStatus.UNAUTHORIZED.value(),
+                  HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                  "Unauthorized",
+                  request.getRequestURI()
+              );
+              response.getWriter().write(body);
             })
         )
         .sessionManagement(sessionManagement -> 
@@ -69,7 +80,14 @@ public class SecurityConfig {
         .authorizeHttpRequests(authorizeRequests ->
             authorizeRequests
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/oauth2/**").permitAll()
+                .requestMatchers(
+                    "/api/v1/auth/login", "/api/v1/auth/login/**",
+                    "/api/v1/auth/register", "/api/v1/auth/register/**",
+                    "/api/v1/auth/oauth2/**",
+                    "/auth-service/api/v1/auth/login", "/auth-service/api/v1/auth/login/**",
+                    "/auth-service/api/v1/auth/register", "/auth-service/api/v1/auth/register/**",
+                    "/auth-service/api/v1/auth/oauth2/**"
+                ).permitAll()
                 .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
         )

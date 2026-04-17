@@ -1,5 +1,7 @@
 package com.app.apigateway.filter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -16,8 +18,10 @@ import org.springframework.core.io.buffer.DataBufferFactory;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Authentication Gateway Filter
@@ -33,11 +37,19 @@ import java.util.List;
 @Component
 public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
 
-  // Public endpoints that don't require authentication
-  private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
-      "/api/v1/auth/login",
-      "/api/v1/auth/register",
-      "/api/v1/auth/oauth2"
+  private final ObjectMapper objectMapper;
+
+  public AuthenticationGatewayFilter(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
+
+  // Public auth endpoints, with optional upstream/discovery prefix support.
+  private static final Pattern PUBLIC_AUTH_PATH_PATTERN = Pattern.compile(
+      "^/(?:.*/)?api/v1/auth/(?:login|register)(?:/.*)?$|^/(?:.*/)?api/v1/auth/oauth2(?:/.*)?$"
+  );
+
+  private static final Pattern PUBLIC_QUANTITY_PATH_PATTERN = Pattern.compile(
+      "^/(?:.*/)?api/v1/quantities(?:/.*)?$"
   );
 
   @Override
@@ -83,7 +95,43 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
    * Check if the request path is a public endpoint
    */
   private boolean isPublicEndpoint(String path) {
-    return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
+    return isPublicAuthPath(path) || isPublicQuantityPath(path);
+  }
+
+  private boolean isPublicAuthPath(String path) {
+    if (path == null || path.isBlank()) {
+      return false;
+    }
+
+    String normalized = path.trim();
+    int queryIndex = normalized.indexOf('?');
+    if (queryIndex >= 0) {
+      normalized = normalized.substring(0, queryIndex);
+    }
+
+    if (normalized.length() > 1 && normalized.endsWith("/")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+
+    return PUBLIC_AUTH_PATH_PATTERN.matcher(normalized).matches();
+  }
+
+  private boolean isPublicQuantityPath(String path) {
+    if (path == null || path.isBlank()) {
+      return false;
+    }
+
+    String normalized = path.trim();
+    int queryIndex = normalized.indexOf('?');
+    if (queryIndex >= 0) {
+      normalized = normalized.substring(0, queryIndex);
+    }
+
+    if (normalized.length() > 1 && normalized.endsWith("/")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+
+    return PUBLIC_QUANTITY_PATH_PATTERN.matcher(normalized).matches();
   }
 
   /**
@@ -94,16 +142,26 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
     response.setStatusCode(status);
     response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/json");
 
-    String body = String.format(
-        "{\"error\":\"%s\",\"status\":%d,\"path\":\"%s\"}",
-        message,
-        status.value(),
-        exchange.getRequest().getPath().value()
-    );
+    Map<String, Object> payload = new LinkedHashMap<>();
+    payload.put("timestamp", Instant.now().toString());
+    payload.put("status", status.value());
+    payload.put("error", status.getReasonPhrase());
+    payload.put("message", message);
+    payload.put("path", exchange.getRequest().getPath().value());
 
+    byte[] bytes = serialize(payload);
     DataBufferFactory bufferFactory = response.bufferFactory();
-    DataBuffer buffer = bufferFactory.wrap(body.getBytes(StandardCharsets.UTF_8));
+    DataBuffer buffer = bufferFactory.wrap(bytes);
     return response.writeWith(Mono.just(buffer));
+  }
+
+  private byte[] serialize(Map<String, Object> payload) {
+    try {
+      return objectMapper.writeValueAsBytes(payload);
+    } catch (JsonProcessingException ex) {
+      String fallback = "{\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Failed to serialize error response\"}";
+      return fallback.getBytes(StandardCharsets.UTF_8);
+    }
   }
 
   /**
@@ -129,6 +187,4 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
     return 0; // Execute after global JWT relay filter
   }
 }
-
-
 
