@@ -1,0 +1,400 @@
+### Gateway-wide API checks (port 8080)
+### Run top-to-bottom in IntelliJ HTTP Client.
+
+@gatewayBase = http://localhost:8080
+@contentType = application/json
+
+# Use unique values on each run to avoid conflict errors unless you are testing duplicates.
+@username = gw_user_{{$timestamp}}
+@email = gw_user_{{$timestamp}}@example.com
+@password = Password123
+
+### 1) Gateway health (expect 200)
+GET {{gatewayBase}}/actuator/health
+Accept: application/json
+
+> {%
+client.test("gateway health should be UP", function() {
+  client.assert(response.status === 200, "Expected 200 from gateway health");
+  client.assert(response.body.status === "UP", "Expected gateway status UP");
+});
+
+client.global.set("gwUsername", request.variables.get("username"));
+client.global.set("gwEmail", request.variables.get("email"));
+if (!client.global.get("gwToken")) {
+  client.global.set("gwToken", "INVALID_TOKEN");
+}
+%}
+
+###
+### 2) Register via gateway (expect 201)
+POST {{gatewayBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.test("register returns 201 with token", function() {
+  client.assert(response.status === 201, "Expected 201 from register");
+  client.assert(response.body.token, "Expected token in register response");
+  client.assert(response.body.username, "Expected username in register response");
+  client.assert(response.body.email, "Expected email in register response");
+});
+
+if (response.status === 201 && response.body.token) {
+  client.global.set("gwToken", response.body.token);
+  client.global.set("gwUsername", response.body.username);
+  client.global.set("gwEmail", response.body.email);
+}
+%}
+
+###
+### 3) Login via username (expect 200)
+POST {{gatewayBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "{{gwUsername}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.test("username login returns 200 with token", function() {
+  client.assert(response.status === 200, "Expected 200 from login by username");
+  client.assert(response.body.token, "Expected token in login response");
+});
+
+if (response.status === 200 && response.body.token) {
+  client.global.set("gwToken", response.body.token);
+}
+%}
+
+
+###
+### 5) Duplicate register (expect 409 with JSON error payload)
+POST {{gatewayBase}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "{{gwUsername}}",
+  "email": "{{gwEmail}}",
+  "password": "{{password}}"
+}
+
+> {%
+client.test("duplicate register returns 409 JSON error", function() {
+  client.assert(response.status === 409, "Expected 409 from duplicate register");
+  client.assert(response.body.timestamp, "Expected timestamp in error response");
+  client.assert(response.body.status === 409, "Expected status field 409");
+  client.assert(response.body.error, "Expected error field");
+  client.assert(response.body.message, "Expected message field");
+  client.assert(response.body.path, "Expected path field");
+});
+%}
+
+###
+### 6) Invalid login payload (expect 400 with JSON error payload)
+POST {{gatewayBase}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "password": "{{password}}"
+}
+
+> {%
+client.test("invalid login payload returns 400 JSON error", function() {
+  client.assert(response.status === 400, "Expected 400 from invalid login payload");
+  client.assert(response.body.status === 400, "Expected status field 400");
+  client.assert(response.body.message, "Expected message field");
+  client.assert(response.body.path, "Expected path field");
+});
+%}
+
+###
+### 7) OAuth2 login with fake token (expect 4xx with JSON error payload)
+POST {{gatewayBase}}/api/v1/auth/oauth2/google
+Content-Type: {{contentType}}
+
+{
+  "provider": "google",
+  "accessToken": "fake_google_access_token"
+}
+
+> {%
+client.test("oauth2 invalid token returns client error JSON", function() {
+  client.assert(response.status >= 400 && response.status < 500, "Expected 4xx from fake oauth2 token");
+  client.assert(response.body.status, "Expected status field");
+  client.assert(response.body.error, "Expected error field");
+  client.assert(response.body.message, "Expected message field");
+  client.assert(response.body.path, "Expected path field");
+});
+%}
+
+###
+### 8) Quantity compare (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/compare
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 30.48,
+    "unit": "CENTIMETERS",
+    "measurementType": "LengthUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 1,
+    "unit": "FEET",
+    "measurementType": "LengthUnit"
+  }
+}
+
+> {%
+client.test("quantity compare returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from compare");
+});
+%}
+
+###
+### 9) Quantity convert (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/convert
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 2,
+    "unit": "LITRE",
+    "measurementType": "VolumeUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 0,
+    "unit": "MILLILITRE",
+    "measurementType": "VolumeUnit"
+  }
+}
+
+> {%
+client.test("quantity convert returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from convert");
+});
+%}
+
+###
+### 10) Quantity add (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/add
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 1,
+    "unit": "KILOGRAM",
+    "measurementType": "WeightUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 500,
+    "unit": "GRAM",
+    "measurementType": "WeightUnit"
+  }
+}
+
+> {%
+client.test("quantity add returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from add");
+});
+%}
+
+###
+### 11) Quantity subtract (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/subtract
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 3,
+    "unit": "FEET",
+    "measurementType": "LengthUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 12,
+    "unit": "INCHES",
+    "measurementType": "LengthUnit"
+  }
+}
+
+> {%
+client.test("quantity subtract returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from subtract");
+});
+%}
+
+###
+### 12) Quantity divide (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/divide
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 2,
+    "unit": "LITRE",
+    "measurementType": "VolumeUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 500,
+    "unit": "MILLILITRE",
+    "measurementType": "VolumeUnit"
+  }
+}
+
+> {%
+client.test("quantity divide returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from divide");
+});
+%}
+
+###
+### 13) Quantity history by operation (expect 200)
+GET {{gatewayBase}}/api/v1/quantities/history/operation/ADD
+Authorization: Bearer {{gwToken}}
+
+> {%
+client.test("quantity history by operation returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from history by operation");
+});
+%}
+
+###
+### 14) Quantity history by type (expect 200)
+GET {{gatewayBase}}/api/v1/quantities/history/type/LengthUnit
+Authorization: Bearer {{gwToken}}
+
+> {%
+client.test("quantity history by type returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from history by type");
+});
+%}
+
+###
+### 15) Quantity errored history (expect 200)
+GET {{gatewayBase}}/api/v1/quantities/history/errored
+Authorization: Bearer {{gwToken}}
+
+> {%
+client.test("quantity errored history returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from errored history");
+});
+%}
+
+###
+### 16) Quantity count by operation (expect 200)
+GET {{gatewayBase}}/api/v1/quantities/count/ADD
+Authorization: Bearer {{gwToken}}
+
+> {%
+client.test("quantity count by operation returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from count by operation");
+});
+%}
+
+###
+### 17) Quantity guest operation without token (expect 200)
+POST {{gatewayBase}}/api/v1/quantities/add
+Content-Type: {{contentType}}
+
+{
+  "thisQuantityDTO": {
+    "value": 1,
+    "unit": "FEET",
+    "measurementType": "LengthUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 12,
+    "unit": "INCHES",
+    "measurementType": "LengthUnit"
+  }
+}
+
+> {%
+client.test("guest quantity add returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 from guest add");
+});
+%}
+
+###
+### 18) Quantity guest history is empty (expect 200 with [])
+GET {{gatewayBase}}/api/v1/quantities/history/errored
+
+> {%
+client.test("guest errored history returns empty list", function() {
+  client.assert(response.status === 200, "Expected 200 from guest errored history");
+  client.assert(Array.isArray(response.body), "Expected array response for guest history");
+  client.assert(response.body.length === 0, "Expected empty history for guest");
+});
+%}
+
+###
+### 19) Quantity validation error (expect 400 with JSON error payload)
+POST {{gatewayBase}}/api/v1/quantities/compare
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{
+  "thisQuantityDTO": {
+    "value": 1,
+    "unit": "INVALID_UNIT",
+    "measurementType": "LengthUnit"
+  },
+  "thatQuantityDTO": {
+    "value": 1,
+    "unit": "FEET",
+    "measurementType": "LengthUnit"
+  }
+}
+
+> {%
+client.test("quantity validation error returns 400 JSON", function() {
+  client.assert(response.status === 400, "Expected 400 for invalid unit");
+  client.assert(response.body.status === 400, "Expected status field 400");
+  client.assert(response.body.error, "Expected error field");
+  client.assert(response.body.message, "Expected message field");
+  client.assert(response.body.path, "Expected path field");
+});
+%}
+
+###
+### 20) Protected logout without token (expect 401 JSON from gateway)
+POST {{gatewayBase}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+
+{}
+
+> {%
+client.test("logout without token returns 401 JSON", function() {
+  client.assert(response.status === 401, "Expected 401 for missing token");
+  client.assert(response.body.status === 401, "Expected status field 401");
+  client.assert(response.body.error, "Expected error field");
+  client.assert(response.body.message, "Expected message field");
+  client.assert(response.body.path, "Expected path field");
+});
+%}
+
+###
+### 21) Logout via gateway (expect 200)
+POST {{gatewayBase}}/api/v1/auth/logout
+Content-Type: {{contentType}}
+Authorization: Bearer {{gwToken}}
+
+{}
+
+> {%
+client.test("logout with token returns 200", function() {
+  client.assert(response.status === 200, "Expected 200 for logout with token");
+});
+%}
