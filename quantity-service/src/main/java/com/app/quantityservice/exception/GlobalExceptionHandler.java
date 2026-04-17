@@ -37,7 +37,11 @@ public class GlobalExceptionHandler {
         .map(error -> error instanceof FieldError fieldError ? fieldError.getDefaultMessage() : error.getDefaultMessage())
         .collect(Collectors.joining(", "));
 
-    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, message, request));
+    if (message == null || message.isBlank()) {
+      message = "Invalid request payload";
+    }
+
+    return buildResponse(HttpStatus.BAD_REQUEST, message, request);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -45,7 +49,7 @@ public class GlobalExceptionHandler {
       HttpMessageNotReadableException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", request));
+    return buildResponse(HttpStatus.BAD_REQUEST, "Malformed JSON request", request);
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -53,7 +57,7 @@ public class GlobalExceptionHandler {
       MethodArgumentTypeMismatchException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, "Invalid value for parameter: " + ex.getName(), request));
+    return buildResponse(HttpStatus.BAD_REQUEST, "Invalid value for parameter: " + ex.getName(), request);
   }
 
   @ExceptionHandler(QuantityMeasurementException.class)
@@ -61,7 +65,7 @@ public class GlobalExceptionHandler {
       QuantityMeasurementException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.badRequest().body(buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request));
+    return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
   }
 
   @ExceptionHandler(AuthenticationException.class)
@@ -69,14 +73,16 @@ public class GlobalExceptionHandler {
       AuthenticationException ex,
       HttpServletRequest request) {
 
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .body(buildError(HttpStatus.UNAUTHORIZED, "Authentication failed", request));
+    return buildResponse(HttpStatus.UNAUTHORIZED, "Authentication failed", request);
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, HttpServletRequest request) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request));
+    return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected server error", request);
+  }
+
+  private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, HttpServletRequest request) {
+    return ResponseEntity.status(status).body(buildError(status, message, request));
   }
 }
 

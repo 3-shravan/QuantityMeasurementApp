@@ -1,5 +1,6 @@
 package com.app.quantityservice.service;
 
+import com.app.quantityservice.application.port.QuantityApplicationService;
 import com.app.quantityservice.domain.quantity.Quantity;
 import com.app.quantityservice.exception.QuantityMeasurementException;
 import com.app.quantityservice.model.OperationType;
@@ -16,6 +17,7 @@ import com.app.quantityservice.unit.VolumeUnit;
 import com.app.quantityservice.unit.WeightUnit;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
+public class QuantityMeasurementServiceImpl implements QuantityApplicationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(QuantityMeasurementServiceImpl.class);
 
@@ -32,87 +34,83 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
   @Override
   public QuantityMeasurementDTO compare(QuantityDTO first, QuantityDTO second) {
-    OperationType operation = OperationType.COMPARE;
-    try {
+    return executeOperation(OperationType.COMPARE, first, second, () -> {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
       QuantityModel<IMeasurable> right = convertDtoToModel(second, "Second quantity");
       validateCompatible(left.getUnit(), right.getUnit());
 
       boolean result = buildQuantity(left).equals(buildQuantity(right));
-      return persistSuccess(operation, first, second, String.valueOf(result), null, null, null);
-    } catch (RuntimeException ex) {
-      saveError(operation, first, second, ex.getMessage());
-      throw new QuantityMeasurementException("compare Error: " + ex.getMessage(), ex);
-    }
+      return persistSuccess(OperationType.COMPARE, first, second, String.valueOf(result), null, null, null);
+    });
   }
 
   @Override
   public QuantityMeasurementDTO convert(QuantityDTO source, QuantityDTO target) {
-    OperationType operation = OperationType.CONVERT;
-    try {
+    return executeOperation(OperationType.CONVERT, source, target, () -> {
       QuantityModel<IMeasurable> from = convertDtoToModel(source, "Source quantity");
       QuantityModel<IMeasurable> targetModel = convertDtoToModel(target, "Target quantity");
       validateCompatible(from.getUnit(), targetModel.getUnit());
 
       Quantity<IMeasurable> result = buildQuantity(from).convertTo(targetModel.getUnit());
-      return persistSuccess(operation, source, target, null, result.getValue(), null, null);
-    } catch (RuntimeException ex) {
-      saveError(operation, source, target, ex.getMessage());
-      throw new QuantityMeasurementException("convert Error: " + ex.getMessage(), ex);
-    }
+      return persistSuccess(OperationType.CONVERT, source, target, null, result.getValue(), null, null);
+    });
   }
 
   @Override
   public QuantityMeasurementDTO add(QuantityDTO first, QuantityDTO second) {
-    OperationType operation = OperationType.ADD;
-    try {
+    return executeOperation(OperationType.ADD, first, second, () -> {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
       QuantityModel<IMeasurable> right = convertDtoToModel(second, "Second quantity");
       validateCompatible(left.getUnit(), right.getUnit());
 
       Quantity<IMeasurable> result = buildQuantity(left).add(buildQuantity(right), left.getUnit());
-      return persistSuccess(operation, first, second, null, result.getValue(), left.getUnit().toString(),
+      return persistSuccess(OperationType.ADD, first, second, null, result.getValue(), left.getUnit().toString(),
           left.getUnit().getMeasurementType());
-    } catch (RuntimeException ex) {
-      saveError(operation, first, second, ex.getMessage());
-      throw new QuantityMeasurementException("add Error: " + ex.getMessage(), ex);
-    }
+    });
   }
 
   @Override
   public QuantityMeasurementDTO subtract(QuantityDTO first, QuantityDTO second) {
-    OperationType operation = OperationType.SUBTRACT;
-    try {
+    return executeOperation(OperationType.SUBTRACT, first, second, () -> {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
       QuantityModel<IMeasurable> right = convertDtoToModel(second, "Second quantity");
       validateCompatible(left.getUnit(), right.getUnit());
 
       Quantity<IMeasurable> result = buildQuantity(left).subtract(buildQuantity(right), left.getUnit());
-      return persistSuccess(operation, first, second, null, result.getValue(), left.getUnit().toString(),
+      return persistSuccess(OperationType.SUBTRACT, first, second, null, result.getValue(), left.getUnit().toString(),
           left.getUnit().getMeasurementType());
-    } catch (RuntimeException ex) {
-      saveError(operation, first, second, ex.getMessage());
-      throw new QuantityMeasurementException("subtract Error: " + ex.getMessage(), ex);
-    }
+    });
   }
 
   @Override
   public QuantityMeasurementDTO divide(QuantityDTO first, QuantityDTO second) {
-    OperationType operation = OperationType.DIVIDE;
-    try {
+    return executeOperation(OperationType.DIVIDE, first, second, () -> {
       QuantityModel<IMeasurable> left = convertDtoToModel(first, "First quantity");
       QuantityModel<IMeasurable> right = convertDtoToModel(second, "Second quantity");
       validateCompatible(left.getUnit(), right.getUnit());
 
       double result = buildQuantity(left).divide(buildQuantity(right));
-      return persistSuccess(operation, first, second, null, result, null, null);
-    } catch (ArithmeticException ex) {
-      saveError(operation, first, second, "Divide by zero");
-      throw new RuntimeException("Divide by zero", ex);
+      return persistSuccess(OperationType.DIVIDE, first, second, null, result, null, null);
+    });
+  }
+
+  private QuantityMeasurementDTO executeOperation(
+      OperationType operation,
+      QuantityDTO first,
+      QuantityDTO second,
+      Supplier<QuantityMeasurementDTO> operationCall
+  ) {
+    try {
+      return operationCall.get();
     } catch (RuntimeException ex) {
-      saveError(operation, first, second, ex.getMessage());
-      throw new QuantityMeasurementException("divide Error: " + ex.getMessage(), ex);
+      saveError(operation, first, second, safeMessage(ex));
+      throw new QuantityMeasurementException(operation.name().toLowerCase() + " Error: " + safeMessage(ex), ex);
     }
+  }
+
+  private String safeMessage(Throwable throwable) {
+    String message = throwable != null ? throwable.getMessage() : null;
+    return (message == null || message.isBlank()) ? "Operation failed" : message;
   }
 
   @Override

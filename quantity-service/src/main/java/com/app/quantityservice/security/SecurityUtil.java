@@ -1,7 +1,6 @@
 package com.app.quantityservice.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,8 +13,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class SecurityUtil {
 
-  @Autowired
-  private JwtTokenProvider tokenProvider;
+  private final JwtTokenProvider tokenProvider;
+
+  public SecurityUtil(JwtTokenProvider tokenProvider) {
+    this.tokenProvider = tokenProvider;
+  }
 
   public String getCurrentUsername() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

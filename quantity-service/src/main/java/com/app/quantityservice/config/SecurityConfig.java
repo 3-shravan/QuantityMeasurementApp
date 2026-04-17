@@ -1,6 +1,7 @@
 package com.app.quantityservice.config;
 
 import com.app.quantityservice.security.JwtAuthenticationFilter;
+import com.app.quantityservice.security.QuantityEndpointPolicy;
 import java.util.Arrays;
 import java.util.List;
 import java.time.Instant;
@@ -24,12 +25,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final QuantityEndpointPolicy quantityEndpointPolicy;
 
   @Value("${app.cors.allowed-origins}")
   private String allowedOrigins;
 
-  public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+  public SecurityConfig(
+      JwtAuthenticationFilter jwtAuthenticationFilter,
+      QuantityEndpointPolicy quantityEndpointPolicy
+  ) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    this.quantityEndpointPolicy = quantityEndpointPolicy;
   }
 
   @Bean
@@ -52,8 +58,7 @@ public class SecurityConfig {
         .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(authorizeRequests -> authorizeRequests
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/actuator/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            .requestMatchers("/api/v1/quantities/**").permitAll()
+            .requestMatchers(quantityEndpointPolicy.publicMatcherPatterns()).permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

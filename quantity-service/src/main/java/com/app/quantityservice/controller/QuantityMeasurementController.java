@@ -3,7 +3,7 @@ package com.app.quantityservice.controller;
 import com.app.quantityservice.model.OperationType;
 import com.app.quantityservice.model.QuantityInputDTO;
 import com.app.quantityservice.model.QuantityMeasurementDTO;
-import com.app.quantityservice.service.IQuantityMeasurementService;
+import com.app.quantityservice.application.port.QuantityApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class QuantityMeasurementController {
 
-  private final IQuantityMeasurementService service;
+  private final QuantityApplicationService service;
 
   @PostMapping("/compare")
   @Operation(summary = "Compare two quantities")
