@@ -9,6 +9,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -43,6 +44,11 @@ public class AuthenticationGatewayFilter implements GlobalFilter, Ordered {
   public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
     ServerHttpRequest request = exchange.getRequest();
     String path = request.getPath().value();
+
+    // Let CORS preflight requests pass through without auth checks.
+    if (request.getMethod() == HttpMethod.OPTIONS) {
+      return chain.filter(exchange);
+    }
 
     // Skip authentication for public endpoints
     if (isPublicEndpoint(path)) {
